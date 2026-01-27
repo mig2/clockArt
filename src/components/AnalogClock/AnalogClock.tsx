@@ -18,10 +18,23 @@ const TICK_OUTER = FACE_RADIUS - 2   // just inside the circle
 const TICK_INNER_CARDINAL = TICK_OUTER - 14
 const TICK_INNER_REGULAR = TICK_OUTER - 8
 
+// Hand endpoints (distance from center to tip)
+const HAND_HOUR_LENGTH = 50
+const HAND_MINUTE_LENGTH = 70
+const HAND_SECOND_LENGTH = 78
+
 function AnalogClock({
+  hours = 0,
+  minutes = 0,
+  seconds = 0,
+  showSecondHand = true,
   showTickMarks = true,
   size = '100%',
 }: AnalogClockProps) {
+  // Angle calculations (degrees clockwise from 12 o'clock)
+  const hourAngle = (hours % 12) * 30 + minutes * 0.5
+  const minuteAngle = minutes * 6 + seconds * 0.1
+  const secondAngle = seconds * 6
   const ticks = Array.from({ length: 12 }, (_, i) => {
     const isCardinal = i % 3 === 0
     const angle = i * 30 // 360 / 12 = 30° per tick
@@ -65,6 +78,38 @@ function AnalogClock({
             className={tick.isCardinal ? 'tick tick-cardinal' : 'tick'}
           />
         ))}
+
+      {/* Hour hand */}
+      <line
+        x1={CENTER}
+        y1={CENTER}
+        x2={CENTER}
+        y2={CENTER - HAND_HOUR_LENGTH}
+        className="hand hand-hour"
+        transform={`rotate(${hourAngle}, ${CENTER}, ${CENTER})`}
+      />
+
+      {/* Minute hand */}
+      <line
+        x1={CENTER}
+        y1={CENTER}
+        x2={CENTER}
+        y2={CENTER - HAND_MINUTE_LENGTH}
+        className="hand hand-minute"
+        transform={`rotate(${minuteAngle}, ${CENTER}, ${CENTER})`}
+      />
+
+      {/* Second hand */}
+      {showSecondHand && (
+        <line
+          x1={CENTER}
+          y1={CENTER}
+          x2={CENTER}
+          y2={CENTER - HAND_SECOND_LENGTH}
+          className="hand hand-second"
+          transform={`rotate(${secondAngle}, ${CENTER}, ${CENTER})`}
+        />
+      )}
     </svg>
   )
 }
