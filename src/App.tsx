@@ -1,9 +1,10 @@
 import './App.css'
+import AnalogClock from './components/AnalogClock/AnalogClock'
 
 function App() {
   return (
     <div className="app">
-      {/* AnalogClock component will go here */}
+      <AnalogClock size={300} />
     </div>
   )
 }

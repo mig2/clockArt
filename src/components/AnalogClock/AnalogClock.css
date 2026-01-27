@@ -1,0 +1,19 @@
+.analog-clock {
+  display: block;
+}
+
+.clock-face {
+  fill: none;
+  stroke: #333;
+  stroke-width: 1.5;
+}
+
+.tick {
+  stroke: #333;
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.tick-cardinal {
+  stroke-width: 2;
+}
