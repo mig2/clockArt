@@ -272,3 +272,17 @@ Completed Issue #11 — Implement synchronized sweep transition:
 - Added to barrel export in `index.ts`
 - TypeScript build verified clean
 - Committed and pushed, closing issue #11
+
+### User
+> Work on 12.
+
+### Assistant
+Completed Issue #12 — Implement staggered/sequential transition:
+- Created `src/animation/staggered.ts`:
+  - `staggeredStrategy`: animates row by row (ab → cd → ef) with overlapping windows
+  - Each row uses shortest-path rotation internally
+  - Timeline: stagger offset = 25% of total, row animation window = 50% of total
+  - Rows overlap so the cascade feels smooth, not jerky
+- Added to barrel export in `index.ts`
+- TypeScript build verified clean
+- Committed and pushed, closing issue #12
