@@ -218,3 +218,25 @@ Completed Issue #8 — 2x3 clock grid display with per-clock and digit controls:
 - Added `?grid=true` query param in `App.tsx`
 - TypeScript build verified clean
 - Committed and pushed, closing issue #8
+
+### User
+> Now I want us to think about the digits, and how we switch from one digit to another in the same 2x3. Switching immediately is jarring. Suggest a couple of ways to transition digits, starting with 1 → 2.
+
+### Assistant
+Proposed three transition strategies:
+1. **Shortest path rotation** — each hand takes the shortest angular path (≤180°), mixed CW/CCW directions, all simultaneous
+2. **Synchronized sweep** — all hands rotate clockwise only, same duration, mechanical feel
+3. **Staggered/sequential** — row-by-row cascade, each clock uses shortest path but clocks are staggered in time
+
+Recommended synchronized sweep for the most "clock-like" feel.
+
+### User
+> Create an issue for the design doc, write the strategies to docs/digitSweep.md, then create separate issues for each strategy plus a UI issue for the grid view with from/to digit selectors, algorithm picker, and play button.
+
+### Assistant
+- Created and closed Issue #9 — Design digit transition strategies
+  - Wrote `docs/digitSweep.md` with full documentation: algorithms, worked examples (1→2), comparison table, implementation notes (requestAnimationFrame, easing)
+- Created Issue #10 — Implement shortest path rotation transition
+- Created Issue #11 — Implement synchronized sweep transition
+- Created Issue #12 — Implement staggered/sequential transition
+- Created Issue #13 — Grid view: digit transition UI with algorithm picker and play button (depends on #10, #11, #12)
