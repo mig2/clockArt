@@ -39,3 +39,64 @@ Created:
 - `docs/Conversation.md` — this file (running conversation log)
 - GitHub issues for each unit of work (see below)
 - Initial git commit with all documentation
+
+### User
+> Work on 1.
+
+### Assistant
+Completed Issue #1 — Project scaffolding:
+- Scaffolded Vite + React 19 + TypeScript project
+- Cleaned out all default boilerplate (logos, counter demo, default styles)
+- Set up `index.css` with full-viewport flexbox centering
+- Set up `App.tsx` with centered container ready for `<AnalogClock>`
+- Set up `App.css` with `.app` flexbox layout
+- Updated `index.html` title to "clockArt"
+- Verified dev server starts and serves clean page
+- Committed and pushed, closing issue #1
+
+### User
+> Work on issue #2.
+
+### Assistant
+Completed Issue #2 — AnalogClock SVG clock face with tick marks:
+- Created `src/components/AnalogClock/AnalogClock.tsx` and `.css`
+- SVG renders in a `viewBox="0 0 200 200"` for resolution-independent scaling
+- Circular clock face: thin `#333` stroke, no fill
+- 12 tick marks computed via trigonometry (30° apart, offset -90° so index 0 = 12 o'clock)
+- Cardinal ticks (12, 3, 6, 9): 14px long, `stroke-width: 2`
+- Regular ticks: 8px long, `stroke-width: 1`
+- All ticks use `stroke-linecap: round` for clean ends
+- `showTickMarks` prop toggles tick visibility
+- `size` prop controls rendered width/height (defaults to `'100%'`)
+- Full prop interface defined (hours, minutes, seconds, showSecondHand) — hands implementation deferred to issue #3
+- Wired into `App.tsx` at 300px for preview
+- TypeScript and production build verified clean
+- Committed and pushed, closing issue #2
+
+### User
+> Work on 3.
+
+### Assistant
+Completed Issue #3 — Hour, minute, and second hands:
+- Added three SVG `<line>` elements rendered from center outward, rotated via `transform="rotate(...)"`
+- **Hour hand**: 50px long, `stroke-width: 4`, `#333`
+- **Minute hand**: 70px long, `stroke-width: 2.5`, `#333`
+- **Second hand**: 78px long, `stroke-width: 1`, `#e74c3c` (red accent), toggleable via `showSecondHand`
+- Angle formulas from design spec:
+  - Hour: `(hours % 12) * 30 + minutes * 0.5`
+  - Minute: `minutes * 6 + seconds * 0.1`
+  - Second: `seconds * 6`
+- All hands use `stroke-linecap: round`
+- Demo wired to 10:10:30 (classic clock display pose)
+- TypeScript and production build verified clean
+- Committed and pushed, closing issue #3
+
+### User
+> Great, now let's add a few more issues. Firstly, I'd like to stack 2x3 clocks, and create a bunch of images for each digit. You decide how the digit is displayed — in some instances (e.g. for 1), there may be multiple options. The digit images should be stored in an images directory and in addition, you should write the times of each clock that produces the image in a digits.md file in the image directory. Make sure that this file is readable by you for later on. Let's call the clocks a,b,c,d,e,f, in order like this: ab on the top row, then cd in the middle row, then ef in the bottom row. Create an issue for this. Then create another issue to make the UI clock a ticking clock.
+
+### Assistant
+Created two new issues:
+- [#5 — Design digit patterns: hand positions for digits 0-9 in 2x3 grid](https://github.com/mig2/clockArt/issues/5)
+  - Design hand positions for all digits, generate images, write `images/digits.md` with clock positions (a-f grid)
+- [#6 — Make the AnalogClock tick in real time](https://github.com/mig2/clockArt/issues/6)
+  - Add `realTime` prop, `useCurrentTime` hook, second-by-second updates

@@ -1,9 +1,16 @@
 import './AnalogClock.css'
 
 interface AnalogClockProps {
+  // Time-based positioning
   hours?: number
   minutes?: number
   seconds?: number
+  // Direct angle positioning (degrees clockwise from 12 o'clock)
+  // When provided, these override the time-based calculation
+  hourAngleDeg?: number
+  minuteAngleDeg?: number
+  secondAngleDeg?: number
+  // Display options
   showSecondHand?: boolean
   showTickMarks?: boolean
   size?: number | string
@@ -27,14 +34,18 @@ function AnalogClock({
   hours = 0,
   minutes = 0,
   seconds = 0,
+  hourAngleDeg,
+  minuteAngleDeg,
+  secondAngleDeg,
   showSecondHand = true,
   showTickMarks = true,
   size = '100%',
 }: AnalogClockProps) {
-  // Angle calculations (degrees clockwise from 12 o'clock)
-  const hourAngle = (hours % 12) * 30 + minutes * 0.5
-  const minuteAngle = minutes * 6 + seconds * 0.1
-  const secondAngle = seconds * 6
+  // Use direct angles if provided, otherwise compute from time
+  const hourAngle = hourAngleDeg ?? ((hours % 12) * 30 + minutes * 0.5)
+  const minuteAngle = minuteAngleDeg ?? (minutes * 6 + seconds * 0.1)
+  const secondAngle = secondAngleDeg ?? (seconds * 6)
+
   const ticks = Array.from({ length: 12 }, (_, i) => {
     const isCardinal = i % 3 === 0
     const angle = i * 30 // 360 / 12 = 30° per tick
