@@ -259,3 +259,16 @@ Completed Issue #10 — Implement shortest path rotation transition:
 - Architecture designed for reuse: issues #11 and #12 only need to add new strategy functions
 - TypeScript build verified clean
 - Committed and pushed, closing issue #10
+
+### User
+> Work on 11.
+
+### Assistant
+Completed Issue #11 — Implement synchronized sweep transition:
+- Created `src/animation/synchronizedSweep.ts`:
+  - `synchronizedSweepStrategy`: all hands rotate clockwise only, same duration
+  - Clockwise delta: `(target - start + 360) % 360` — 0 means no movement
+  - Hands with larger deltas move faster to finish together
+- Added to barrel export in `index.ts`
+- TypeScript build verified clean
+- Committed and pushed, closing issue #11

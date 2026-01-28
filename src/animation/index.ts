@@ -2,3 +2,4 @@ export type { ClockAngles, DigitAngles, TransitionStrategy, TransitionOptions } 
 export { easeInOutCubic } from './easing'
 export { runTransition } from './engine'
 export { shortestPathStrategy } from './shortestPath'
+export { synchronizedSweepStrategy } from './synchronizedSweep'
