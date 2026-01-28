@@ -6,6 +6,7 @@ import {
   shortestPathStrategy,
   synchronizedSweepStrategy,
   staggeredStrategy,
+  windUpStrategy,
 } from '../../animation'
 import type { DigitAngles, TransitionStrategy } from '../../animation'
 import './DigitGrid.css'
@@ -25,12 +26,13 @@ type SelectedDigit = Digit | 'custom'
 
 const DIGIT_LIST: Digit[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
-type AlgorithmKey = 'shortest' | 'sweep' | 'staggered'
+type AlgorithmKey = 'shortest' | 'sweep' | 'staggered' | 'windUp'
 
 const ALGORITHMS: Record<AlgorithmKey, { label: string; strategy: TransitionStrategy }> = {
   shortest: { label: 'Shortest Path', strategy: shortestPathStrategy },
   sweep: { label: 'Synchronized Sweep', strategy: synchronizedSweepStrategy },
   staggered: { label: 'Staggered', strategy: staggeredStrategy },
+  windUp: { label: 'Wind-Up', strategy: windUpStrategy },
 }
 
 /** Convert a digit pattern to DigitAngles format */

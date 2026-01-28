@@ -308,3 +308,22 @@ Completed Issue #13 — Grid view: digit transition UI with algorithm picker and
   - `.duration-value` for tabular-nums display of ms value
 - TypeScript build verified clean
 - Committed and pushed, closing issue #13
+
+### User
+> I'd like to add an algorithm, each clock rotates clockwise once past its current setting into the new setting. Name the algorithm. Open an issue for it and then work on it.
+
+### Assistant
+Named the algorithm **"Wind-Up"** — each hand makes at least one full clockwise revolution before landing on its target.
+
+Created Issue #14 — Implement full-revolution clockwise transition strategy.
+
+Completed Issue #14:
+- Created `src/animation/windUp.ts`:
+  - `windUpStrategy`: every hand rotates clockwise through at least 360° before arriving at the target
+  - Delta formula: `((target - start + 360) % 360) + 360` — guarantees one full revolution plus the clockwise distance to the target
+  - If target equals start, hand still completes a full 360° sweep
+  - Uses `easeInOutCubic` easing for natural motion
+- Added to barrel export in `src/animation/index.ts`
+- Added "Wind-Up" option to DigitGrid algorithm picker (`AlgorithmKey`, `ALGORITHMS` map, import)
+- TypeScript build verified clean
+- Committed and pushed, closing issue #14
