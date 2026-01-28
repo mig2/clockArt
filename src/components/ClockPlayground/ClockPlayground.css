@@ -1,0 +1,180 @@
+.playground {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.playground-preview {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.playground-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+}
+
+/* Fieldset groups */
+.control-group {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 0;
+}
+
+.control-group legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 6px;
+}
+
+/* Control rows */
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.control-row label {
+  font-size: 13px;
+  color: #333;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+/* Slider + number input combo */
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.slider-group input[type='range'] {
+  flex: 1;
+  min-width: 80px;
+}
+
+.number-input {
+  width: 56px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.unit {
+  font-size: 12px;
+  color: #888;
+  width: 12px;
+}
+
+/* Toggle buttons */
+.toggle-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 4px 12px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 12px;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.toggle-btn:not(:last-child) {
+  border-right: 1px solid #ccc;
+}
+
+.toggle-btn.active {
+  background: #333;
+  color: #fff;
+}
+
+.toggle-btn:hover:not(.active) {
+  background: #e8e8e8;
+}
+
+/* Color inputs */
+.color-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-group input[type='color'] {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1px;
+  cursor: pointer;
+}
+
+.color-text-input {
+  width: 72px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+/* Checkbox */
+.control-row input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Reset button */
+.reset-btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  font-size: 13px;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.15s;
+  align-self: flex-start;
+}
+
+.reset-btn:hover {
+  background: #eee;
+}
+
+/* Responsive: stack on narrow screens */
+@media (max-width: 700px) {
+  .playground {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .playground-controls {
+    min-width: unset;
+    width: 100%;
+    max-width: 400px;
+  }
+}

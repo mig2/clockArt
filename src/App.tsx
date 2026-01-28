@@ -1,5 +1,6 @@
 import './App.css'
 import AnalogClock from './components/AnalogClock/AnalogClock'
+import ClockPlayground from './components/ClockPlayground/ClockPlayground'
 
 // Direction angles (degrees clockwise from 12 o'clock)
 const UP = 0
@@ -115,14 +116,27 @@ const DIGITS: Record<string, { hour: number; minute: number }[]> = {
   ],
 }
 
-// Show all digits or a single digit via ?digit=X query param
-// Use ?realtime=true to show a single ticking clock
+// Query param modes:
+//   ?playground=true  — interactive clock playground
+//   ?realtime=true    — single ticking clock
+//   ?digit=X          — single digit display
+//   (none)            — all digits overview
 const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 function App() {
   const params = new URLSearchParams(window.location.search)
   const singleDigit = params.get('digit')
   const realTimeMode = params.get('realtime') === 'true'
+  const playgroundMode = params.get('playground') === 'true'
+
+  // Playground mode: interactive clock with controls
+  if (playgroundMode) {
+    return (
+      <div className="app">
+        <ClockPlayground />
+      </div>
+    )
+  }
 
   // Real-time clock mode: show a single ticking clock
   if (realTimeMode) {

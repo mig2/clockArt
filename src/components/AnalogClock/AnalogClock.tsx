@@ -14,9 +14,17 @@ interface AnalogClockProps {
   // Display options
   showSecondHand?: boolean
   showTickMarks?: boolean
+  showCardinalTicks?: boolean
+  showRegularTicks?: boolean
   size?: number | string
   // Real-time mode: when true, ignores hours/minutes/seconds props and uses live time
   realTime?: boolean
+  // Color customization
+  hourHandColor?: string
+  minuteHandColor?: string
+  secondHandColor?: string
+  tickColor?: string
+  faceColor?: string
 }
 
 const VIEWBOX_SIZE = 200
@@ -42,8 +50,15 @@ function AnalogClock({
   secondAngleDeg,
   showSecondHand = true,
   showTickMarks = true,
+  showCardinalTicks = true,
+  showRegularTicks = true,
   size = '100%',
   realTime = false,
+  hourHandColor,
+  minuteHandColor,
+  secondHandColor,
+  tickColor,
+  faceColor,
 }: AnalogClockProps) {
   // Get current time (only used when realTime is true)
   const currentTime = useCurrentTime()
@@ -87,20 +102,27 @@ function AnalogClock({
         cy={CENTER}
         r={FACE_RADIUS}
         className="clock-face"
+        style={faceColor ? { stroke: faceColor } : undefined}
       />
 
       {/* Tick marks */}
       {showTickMarks &&
-        ticks.map((tick) => (
-          <line
-            key={tick.key}
-            x1={tick.x1}
-            y1={tick.y1}
-            x2={tick.x2}
-            y2={tick.y2}
-            className={tick.isCardinal ? 'tick tick-cardinal' : 'tick'}
-          />
-        ))}
+        ticks.map((tick) => {
+          // Skip cardinal or regular ticks based on props
+          if (tick.isCardinal && !showCardinalTicks) return null
+          if (!tick.isCardinal && !showRegularTicks) return null
+          return (
+            <line
+              key={tick.key}
+              x1={tick.x1}
+              y1={tick.y1}
+              x2={tick.x2}
+              y2={tick.y2}
+              className={tick.isCardinal ? 'tick tick-cardinal' : 'tick'}
+              style={tickColor ? { stroke: tickColor } : undefined}
+            />
+          )
+        })}
 
       {/* Hour hand */}
       <line
@@ -110,6 +132,7 @@ function AnalogClock({
         y2={CENTER - HAND_HOUR_LENGTH}
         className="hand hand-hour"
         transform={`rotate(${hourAngle}, ${CENTER}, ${CENTER})`}
+        style={hourHandColor ? { stroke: hourHandColor } : undefined}
       />
 
       {/* Minute hand */}
@@ -120,6 +143,7 @@ function AnalogClock({
         y2={CENTER - HAND_MINUTE_LENGTH}
         className="hand hand-minute"
         transform={`rotate(${minuteAngle}, ${CENTER}, ${CENTER})`}
+        style={minuteHandColor ? { stroke: minuteHandColor } : undefined}
       />
 
       {/* Second hand */}
@@ -131,6 +155,7 @@ function AnalogClock({
           y2={CENTER - HAND_SECOND_LENGTH}
           className="hand hand-second"
           transform={`rotate(${secondAngle}, ${CENTER}, ${CENTER})`}
+          style={secondHandColor ? { stroke: secondHandColor } : undefined}
         />
       )}
     </svg>
