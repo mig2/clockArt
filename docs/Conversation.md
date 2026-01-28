@@ -240,3 +240,22 @@ Recommended synchronized sweep for the most "clock-like" feel.
 - Created Issue #11 — Implement synchronized sweep transition
 - Created Issue #12 — Implement staggered/sequential transition
 - Created Issue #13 — Grid view: digit transition UI with algorithm picker and play button (depends on #10, #11, #12)
+
+### User
+> Work on 10.
+
+### Assistant
+Completed Issue #10 — Implement shortest path rotation transition:
+- Created shared animation infrastructure in `src/animation/`:
+  - `types.ts` — `ClockAngles`, `DigitAngles`, `TransitionStrategy`, `TransitionOptions`
+  - `easing.ts` — `easeInOutCubic` function
+  - `engine.ts` — `runTransition()` using `requestAnimationFrame`, returns cancel function
+  - `shortestPath.ts` — `shortestPathStrategy`: each hand rotates ≤180° via shortest angular path
+  - `index.ts` — barrel export
+- Created `src/hooks/useDigitTransition.ts`:
+  - Returns `angles`, `isAnimating`, `setAngles`, `animateTo`, `cancel`
+  - Manages animation lifecycle with refs to avoid stale closures
+  - Cancels previous animation when a new one starts
+- Architecture designed for reuse: issues #11 and #12 only need to add new strategy functions
+- TypeScript build verified clean
+- Committed and pushed, closing issue #10
