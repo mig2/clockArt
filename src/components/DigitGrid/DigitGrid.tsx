@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import AnalogClock from '../AnalogClock/AnalogClock'
 import { DIGITS, CLOCK_LABELS } from '../../data/digits'
 import { useDigitTransition } from '../../hooks/useDigitTransition'
@@ -68,6 +68,10 @@ function DigitGrid() {
 
   const transition = useDigitTransition(digitToAngles('0'))
 
+  // --- Cycle state ---
+  const [isCycling, setIsCycling] = useState(false)
+  const cycleRef = useRef(false)
+
   // --- Handlers ---
 
   function handleDigitSelect(digit: SelectedDigit) {
@@ -112,6 +116,55 @@ function DigitGrid() {
     }, duration + 50)
   }, [fromDigit, toDigit, algorithm, duration, transition])
 
+  const handleCycle = useCallback(() => {
+    if (transition.isAnimating || isCycling) return
+    const { strategy } = ALGORITHMS[algorithm]
+    const pause = 300 // ms pause between transitions
+
+    setIsCycling(true)
+    cycleRef.current = true
+
+    // Show digit 0 immediately
+    setSelectedDigit('0')
+    setClocks(clocksFromDigit('0'))
+    transition.setAngles(digitToAngles('0'))
+
+    let step = 0 // current "from" index: will animate 0→1, 1→2, …, 8→9
+
+    function next() {
+      if (!cycleRef.current || step >= 9) {
+        // Done cycling
+        cycleRef.current = false
+        setIsCycling(false)
+        return
+      }
+
+      const fromD = String(step) as Digit
+      const toD = String(step + 1) as Digit
+      const from = digitToAngles(fromD)
+      const to = digitToAngles(toD)
+
+      // Ensure we're at the "from" state
+      transition.setAngles(from)
+
+      requestAnimationFrame(() => {
+        transition.animateTo(to, strategy, duration)
+      })
+
+      // After this transition completes, update UI and schedule the next one
+      setTimeout(() => {
+        setSelectedDigit(toD)
+        setClocks(clocksFromDigit(toD))
+        step++
+        // Pause briefly before the next transition
+        setTimeout(next, pause)
+      }, duration + 50)
+    }
+
+    // Start the first transition after a brief initial pause
+    setTimeout(next, pause)
+  }, [algorithm, duration, transition, isCycling])
+
   // --- Determine which angles to show ---
   // During animation: use transition.angles
   // Otherwise: use manual clock states
@@ -137,6 +190,7 @@ function DigitGrid() {
   }
 
   const isCustom = selectedDigit === 'custom'
+  const isBusy = transition.isAnimating || isCycling
 
   return (
     <div className="digit-grid-page">
@@ -150,7 +204,7 @@ function DigitGrid() {
                 key={d}
                 className={fromDigit === d ? 'digit-btn active' : 'digit-btn'}
                 onClick={() => setFromDigit(d)}
-                disabled={transition.isAnimating}
+                disabled={isBusy}
               >
                 {d}
               </button>
@@ -166,7 +220,7 @@ function DigitGrid() {
                 key={d}
                 className={toDigit === d ? 'digit-btn active' : 'digit-btn'}
                 onClick={() => setToDigit(d)}
-                disabled={transition.isAnimating}
+                disabled={isBusy}
               >
                 {d}
               </button>
@@ -182,7 +236,7 @@ function DigitGrid() {
                 key={key}
                 className={algorithm === key ? 'digit-btn active' : 'digit-btn'}
                 onClick={() => setAlgorithm(key)}
-                disabled={transition.isAnimating}
+                disabled={isBusy}
               >
                 {ALGORITHMS[key].label}
               </button>
@@ -199,7 +253,7 @@ function DigitGrid() {
             step={100}
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
-            disabled={transition.isAnimating}
+            disabled={isBusy}
           />
           <span className="duration-value">{duration}ms</span>
         </div>
@@ -208,9 +262,16 @@ function DigitGrid() {
           <button
             className="play-btn"
             onClick={handlePlay}
-            disabled={transition.isAnimating}
+            disabled={isBusy}
           >
-            {transition.isAnimating ? 'Playing…' : '▶ Play'}
+            {transition.isAnimating && !isCycling ? 'Playing…' : '▶ Play'}
+          </button>
+          <button
+            className="play-btn cycle-btn"
+            onClick={handleCycle}
+            disabled={isBusy}
+          >
+            {isCycling ? 'Cycling…' : '⟳ Cycle 0–9'}
           </button>
         </div>
       </div>
@@ -224,7 +285,7 @@ function DigitGrid() {
               key={d}
               className={selectedDigit === d ? 'digit-btn active' : 'digit-btn'}
               onClick={() => handleDigitSelect(d as SelectedDigit)}
-              disabled={transition.isAnimating}
+              disabled={isBusy}
             >
               {d === 'custom' ? '✎' : d}
             </button>
@@ -260,7 +321,7 @@ function DigitGrid() {
               label={CLOCK_LABELS[i]}
               state={clock}
               onChange={(updates) => updateClock(i, updates)}
-              disabled={transition.isAnimating}
+              disabled={isBusy}
             />
           ))}
         </div>

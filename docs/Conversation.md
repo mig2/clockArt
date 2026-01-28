@@ -327,3 +327,19 @@ Completed Issue #14:
 - Added "Wind-Up" option to DigitGrid algorithm picker (`AlgorithmKey`, `ALGORITHMS` map, import)
 - TypeScript build verified clean
 - Committed and pushed, closing issue #14
+
+### User
+> Add a feature to cycle through the digits from 0 to 9 and add a cycle-digits button to the UI. Then work on the feature.
+
+### Assistant
+Created Issue #15 — Add cycle-digits button to animate through 0-9 sequentially.
+
+Completed Issue #15:
+- Added "⟳ Cycle 0–9" button to DigitGrid transition controls, next to Play
+- Cycle sequentially animates 0→1→2→…→9 using the selected algorithm and duration
+- 300ms pause between each transition for the digit to "land"
+- All controls disabled during cycle (`isBusy = isAnimating || isCycling`)
+- Button shows "Cycling…" while running, re-enables after reaching 9
+- Uses `useRef` to track cycle state for the sequential setTimeout chain
+- TypeScript build verified clean
+- Committed and pushed, closing issue #15
