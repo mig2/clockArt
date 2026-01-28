@@ -286,3 +286,25 @@ Completed Issue #12 — Implement staggered/sequential transition:
 - Added to barrel export in `index.ts`
 - TypeScript build verified clean
 - Committed and pushed, closing issue #12
+
+### User
+> Work on 13.
+
+### Assistant
+Completed Issue #13 — Grid view: digit transition UI with algorithm picker and play button:
+- Refactored `src/components/DigitGrid/DigitGrid.tsx` to integrate transition animation:
+  - **From/To digit selectors**: choose source and target digits (0-9)
+  - **Algorithm picker**: choose between Shortest Path, Synchronized Sweep, or Staggered strategies
+  - **Duration slider**: 200ms to 2000ms range (100ms steps)
+  - **Play button**: triggers animated transition from source to target digit
+  - All controls disabled during animation; button shows "Playing…" state
+  - Integrated `useDigitTransition` hook: during animation, clocks are driven by `transition.angles`; otherwise by manual per-clock state
+  - Existing per-clock manual controls (angle/time mode, sliders, number inputs) preserved
+- Updated `DigitGrid.css` with transition control styles:
+  - `.transition-controls` container with border, rounded corners, light background
+  - `.transition-row` layout for each control row
+  - `.digit-buttons.compact` variant for smaller button sizing
+  - `.play-btn` styled button with disabled state
+  - `.duration-value` for tabular-nums display of ms value
+- TypeScript build verified clean
+- Committed and pushed, closing issue #13
