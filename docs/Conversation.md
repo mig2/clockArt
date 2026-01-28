@@ -100,3 +100,31 @@ Created two new issues:
   - Design hand positions for all digits, generate images, write `images/digits.md` with clock positions (a-f grid)
 - [#6 — Make the AnalogClock tick in real time](https://github.com/mig2/clockArt/issues/6)
   - Add `realTime` prop, `useCurrentTime` hook, second-by-second updates
+
+### User
+> Work on #5, but before you do all the digits, let's do one together. The number 3...
+
+### Assistant
+Designed digit 3 collaboratively:
+- Grid: a,b (top), c,d (middle), e,f (bottom)
+- Used "time-based" approach initially (e.g., 3:15 = both hands at 3) but hands didn't align exactly due to real clock math
+- User pointed out hands should snap to exact positions, not simulate real time
+- Added `hourAngleDeg` and `minuteAngleDeg` props to AnalogClock for direct angle control
+- Direction constants: UP=0°, RIGHT=90°, DOWN=180°, LEFT=270°
+- Re-rendered digit 3 with exact angles — clean result
+
+### User
+> Great! Now let's work on the issue.
+
+### Assistant
+Completed Issue #5 — Digit patterns for all digits 0-9:
+- Designed hand positions for all 10 digits using the 2×3 grid
+- Each clock uses `hourAngleDeg`/`minuteAngleDeg` for precise hand placement
+- Generated individual screenshots for each digit (`images/digit-0.png` through `images/digit-9.png`)
+- Generated overview screenshot (`images/all-digits.png`)
+- Wrote `images/digits.md` with:
+  - Human-readable tables for each digit (clock, hour angle, minute angle, description)
+  - JSON summary for programmatic use
+- Added `?digit=X` query param support to App for single-digit rendering
+- Added screenshot script: `scripts/screenshot-digits.mjs`
+- Committed locally, closing issue #5 (push pending auth refresh)

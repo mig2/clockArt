@@ -23,10 +23,17 @@ All angles are in degrees, clockwise from 12 o'clock:
 | DOWN      | 180   |
 | LEFT      | 270   |
 
+### Neutral / Unused Clocks
+
+Clocks not contributing to a digit pattern use a "neutral" position — both hands overlapping at **225°** (7:30 position). This single diagonal line clearly signals "I'm not part of this digit."
+
+| Name    | Hour | Minute |
+|---------|------|--------|
+| NEUTRAL | 225  | 225    |
+
 ## Digit Definitions
 
 Each clock is defined as `{ hourAngleDeg, minuteAngleDeg }`.
-When both hands point the same direction, they overlap (used for "blank" clocks).
 
 ---
 
@@ -57,14 +64,14 @@ When both hands point the same direction, they overlap (used for "blank" clocks)
    │
 ```
 
-| Clock | Hour | Minute | Description |
-|-------|------|--------|-------------|
-| a     | 90   | 90     | RIGHT, RIGHT (blank) |
-| b     | 180  | 180    | DOWN, DOWN  |
-| c     | 90   | 90     | RIGHT, RIGHT (blank) |
-| d     | 0    | 180    | UP, DOWN    |
-| e     | 90   | 90     | RIGHT, RIGHT (blank) |
-| f     | 0    | 0      | UP, UP      |
+| Clock | Hour | Minute | Description      |
+|-------|------|--------|------------------|
+| a     | 225  | 225    | NEUTRAL (unused) |
+| b     | 180  | 180    | DOWN, DOWN       |
+| c     | 225  | 225    | NEUTRAL (unused) |
+| d     | 0    | 180    | UP, DOWN         |
+| e     | 225  | 225    | NEUTRAL (unused) |
+| f     | 0    | 0      | UP, UP           |
 
 ---
 
@@ -114,14 +121,14 @@ When both hands point the same direction, they overlap (used for "blank" clocks)
    │
 ```
 
-| Clock | Hour | Minute | Description |
-|-------|------|--------|-------------|
-| a     | 180  | 180    | DOWN, DOWN  |
-| b     | 180  | 180    | DOWN, DOWN  |
-| c     | 0    | 90     | UP, RIGHT   |
-| d     | 0    | 180    | UP, DOWN    |
-| e     | 0    | 0      | UP, UP (blank) |
-| f     | 0    | 0      | UP, UP (blank) |
+| Clock | Hour | Minute | Description      |
+|-------|------|--------|------------------|
+| a     | 180  | 180    | DOWN, DOWN       |
+| b     | 180  | 180    | DOWN, DOWN       |
+| c     | 0    | 90     | UP, RIGHT        |
+| d     | 0    | 180    | UP, DOWN         |
+| e     | 225  | 225    | NEUTRAL (unused) |
+| f     | 0    | 0      | UP, UP           |
 
 ---
 
@@ -171,14 +178,14 @@ When both hands point the same direction, they overlap (used for "blank" clocks)
   │
 ```
 
-| Clock | Hour | Minute | Description |
-|-------|------|--------|-------------|
-| a     | 90   | 90     | RIGHT, RIGHT |
-| b     | 270  | 180    | LEFT, DOWN   |
-| c     | 0    | 0      | UP, UP (blank) |
-| d     | 0    | 180    | UP, DOWN     |
-| e     | 0    | 0      | UP, UP (blank) |
-| f     | 0    | 0      | UP, UP (blank) |
+| Clock | Hour | Minute | Description      |
+|-------|------|--------|------------------|
+| a     | 90   | 90     | RIGHT, RIGHT     |
+| b     | 270  | 180    | LEFT, DOWN       |
+| c     | 225  | 225    | NEUTRAL (unused) |
+| d     | 0    | 180    | UP, DOWN         |
+| e     | 225  | 225    | NEUTRAL (unused) |
+| f     | 0    | 0      | UP, UP           |
 
 ---
 
@@ -229,13 +236,13 @@ For programmatic use, here are all digits as arrays of `[hourAngleDeg, minuteAng
 ```json
 {
   "0": [[90,180], [270,180], [0,180], [0,180], [0,90], [0,270]],
-  "1": [[90,90], [180,180], [90,90], [0,180], [90,90], [0,0]],
+  "1": [[225,225], [180,180], [225,225], [0,180], [225,225], [0,0]],
   "2": [[90,90], [270,180], [90,180], [0,270], [0,90], [270,270]],
   "3": [[90,90], [270,180], [90,90], [0,180], [90,90], [0,270]],
-  "4": [[180,180], [180,180], [0,90], [0,180], [0,0], [0,0]],
+  "4": [[180,180], [180,180], [0,90], [0,180], [225,225], [0,0]],
   "5": [[90,180], [270,270], [0,90], [270,180], [90,90], [0,270]],
   "6": [[90,180], [270,270], [0,90], [270,180], [0,90], [0,270]],
-  "7": [[90,90], [270,180], [0,0], [0,180], [0,0], [0,0]],
+  "7": [[90,90], [270,180], [225,225], [0,180], [225,225], [0,0]],
   "8": [[90,180], [270,180], [0,90], [0,180], [0,90], [0,270]],
   "9": [[90,180], [270,180], [0,90], [0,180], [90,90], [0,270]]
 }

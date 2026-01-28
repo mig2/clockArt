@@ -7,6 +7,10 @@ const RIGHT = 90
 const DOWN = 180
 const LEFT = 270
 
+// "Neutral" angles for unused clocks — both hands at 225° (7:30 position)
+const NEUTRAL_HOUR = 225
+const NEUTRAL_MINUTE = 225
+
 // Each digit: array of 6 clocks [a, b, c, d, e, f]
 // Each clock: { hour: angle, minute: angle }
 const DIGITS: Record<string, { hour: number; minute: number }[]> = {
@@ -20,14 +24,14 @@ const DIGITS: Record<string, { hour: number; minute: number }[]> = {
     { hour: UP,    minute: RIGHT }, { hour: UP,    minute: LEFT  },  // e, f
   ],
 
-  // 1: right column vertical only
+  // 1: right column vertical only — left column is neutral/unused
   //      │
   //      │
   //      │
   '1': [
-    { hour: RIGHT, minute: RIGHT }, { hour: DOWN,  minute: DOWN  },  // a, b (a: blank/neutral, b: down)
-    { hour: RIGHT, minute: RIGHT }, { hour: UP,    minute: DOWN  },  // c, d (c: blank/neutral, d: vertical)
-    { hour: RIGHT, minute: RIGHT }, { hour: UP,    minute: UP    },  // e, f (e: blank/neutral, f: up)
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: DOWN,  minute: DOWN  },  // a (neutral), b
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: UP,    minute: DOWN  },  // c (neutral), d
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: UP,    minute: UP    },  // e (neutral), f
   ],
 
   // 2: top bar, right vertical top, middle bar, left vertical bottom, bottom bar
@@ -50,14 +54,14 @@ const DIGITS: Record<string, { hour: number; minute: number }[]> = {
     { hour: RIGHT, minute: RIGHT }, { hour: UP,    minute: LEFT  },  // e, f
   ],
 
-  // 4: top verticals both sides, middle bar, right vertical bottom
+  // 4: top verticals both sides, middle bar, right vertical bottom — e is neutral
   //   │  │
   //   └──┤
   //      │
   '4': [
     { hour: DOWN,  minute: DOWN  }, { hour: DOWN,  minute: DOWN  },  // a, b
     { hour: UP,    minute: RIGHT }, { hour: UP,    minute: DOWN  },  // c, d
-    { hour: UP,    minute: UP    }, { hour: UP,    minute: UP    },  // e, f (f: just up from d)
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: UP,    minute: UP    },  // e (neutral), f
   ],
 
   // 5: top bar, left vertical top, middle bar, right vertical bottom, bottom bar
@@ -80,14 +84,14 @@ const DIGITS: Record<string, { hour: number; minute: number }[]> = {
     { hour: UP,    minute: RIGHT }, { hour: UP,    minute: LEFT  },  // e, f
   ],
 
-  // 7: top bar, right vertical
+  // 7: top bar, right vertical — left column (except a) is neutral
   //   ──┐
   //     │
   //     │
   '7': [
     { hour: RIGHT, minute: RIGHT }, { hour: LEFT,  minute: DOWN  },  // a, b
-    { hour: UP,    minute: UP    }, { hour: UP,    minute: DOWN  },  // c, d
-    { hour: UP,    minute: UP    }, { hour: UP,    minute: UP    },  // e, f
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: UP,    minute: DOWN  },  // c (neutral), d
+    { hour: NEUTRAL_HOUR, minute: NEUTRAL_MINUTE }, { hour: UP,    minute: UP    },  // e (neutral), f
   ],
 
   // 8: all bars and all verticals — full box with middle bar
