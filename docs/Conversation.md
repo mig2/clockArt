@@ -201,3 +201,20 @@ Completed Issue #7 — Interactive clock playground:
 - Added `?playground=true` query param in `App.tsx`
 - TypeScript build verified clean
 - Committed and pushed, closing issue #7
+
+### User
+> Work on 8.
+
+### Assistant
+Completed Issue #8 — 2x3 clock grid display with per-clock and digit controls:
+- Extracted digit patterns into shared `src/data/digits.ts` (used by both App.tsx and DigitGrid)
+- Created `src/components/DigitGrid/DigitGrid.tsx`:
+  - 2×3 grid of labeled clocks (a-f) with digit preset selector (0-9 + custom ✎)
+  - Selecting a digit loads the predefined pattern; editing any clock switches to custom mode
+  - Per-clock controls: angle/time mode toggle, sliders + number inputs
+  - Angle mode: hour and minute angle (0-360°) with sliders
+  - Time mode: hour (0-11) and minute (0-59) number inputs
+- Created `DigitGrid.css` with compact control styling, responsive layout
+- Added `?grid=true` query param in `App.tsx`
+- TypeScript build verified clean
+- Committed and pushed, closing issue #8
