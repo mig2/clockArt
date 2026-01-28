@@ -116,11 +116,29 @@ const DIGITS: Record<string, { hour: number; minute: number }[]> = {
 }
 
 // Show all digits or a single digit via ?digit=X query param
+// Use ?realtime=true to show a single ticking clock
 const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 function App() {
   const params = new URLSearchParams(window.location.search)
   const singleDigit = params.get('digit')
+  const realTimeMode = params.get('realtime') === 'true'
+
+  // Real-time clock mode: show a single ticking clock
+  if (realTimeMode) {
+    return (
+      <div className="app">
+        <div className="realtime-container">
+          <AnalogClock
+            size={300}
+            realTime={true}
+            showSecondHand={true}
+            showTickMarks={true}
+          />
+        </div>
+      </div>
+    )
+  }
 
   const digitsToShow = singleDigit && DIGITS[singleDigit] ? [singleDigit] : ALL_DIGITS
 

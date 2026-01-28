@@ -1,4 +1,5 @@
 import './AnalogClock.css'
+import { useCurrentTime } from '../../hooks/useCurrentTime'
 
 interface AnalogClockProps {
   // Time-based positioning
@@ -14,6 +15,8 @@ interface AnalogClockProps {
   showSecondHand?: boolean
   showTickMarks?: boolean
   size?: number | string
+  // Real-time mode: when true, ignores hours/minutes/seconds props and uses live time
+  realTime?: boolean
 }
 
 const VIEWBOX_SIZE = 200
@@ -31,16 +34,25 @@ const HAND_MINUTE_LENGTH = 70
 const HAND_SECOND_LENGTH = 78
 
 function AnalogClock({
-  hours = 0,
-  minutes = 0,
-  seconds = 0,
+  hours: propHours = 0,
+  minutes: propMinutes = 0,
+  seconds: propSeconds = 0,
   hourAngleDeg,
   minuteAngleDeg,
   secondAngleDeg,
   showSecondHand = true,
   showTickMarks = true,
   size = '100%',
+  realTime = false,
 }: AnalogClockProps) {
+  // Get current time (only used when realTime is true)
+  const currentTime = useCurrentTime()
+
+  // Use real time if enabled, otherwise use props
+  const hours = realTime ? currentTime.hours : propHours
+  const minutes = realTime ? currentTime.minutes : propMinutes
+  const seconds = realTime ? currentTime.seconds : propSeconds
+
   // Use direct angles if provided, otherwise compute from time
   const hourAngle = hourAngleDeg ?? ((hours % 12) * 30 + minutes * 0.5)
   const minuteAngle = minuteAngleDeg ?? (minutes * 6 + seconds * 0.1)

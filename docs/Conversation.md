@@ -128,3 +128,57 @@ Completed Issue #5 — Digit patterns for all digits 0-9:
 - Added `?digit=X` query param support to App for single-digit rendering
 - Added screenshot script: `scripts/screenshot-digits.mjs`
 - Committed locally, closing issue #5 (push pending auth refresh)
+
+### User
+> The 1, 4, and 7 look funky, that's because you have a few spare clocks. We need to figure out what to do with them.
+
+### Assistant
+Implemented "neutral" clock position for unused clocks:
+- Both hands at 225° (7:30 position) — a single diagonal line that clearly signals "I'm not part of this digit"
+- Updated digits 1, 4, and 7 to use NEUTRAL_HOUR=225, NEUTRAL_MINUTE=225 for unused positions
+- Updated `images/digits.md` with neutral position documentation
+- Regenerated all digit screenshots
+- Committed and pushed
+
+### User
+> Let's create a new issue for an interactive clock playground with UI controls.
+
+### Assistant
+Created Issue #7 — Interactive clock playground:
+- UI controls for customizing individual clock properties
+- Real-time preview of changes
+
+### User
+> Let's create a new issue, display a 2x3 grid of clocks. When this is the chosen display, you should also have the ability to set a digit. Also, each of the clocks in the display should be able to be set either by degrees or by time.
+
+### Assistant
+Created Issue #8 — 2x3 Clock Grid Display with Controls:
+- Display 2×3 grid of clocks (a-f)
+- Digit preset selector (0-9) to load predefined patterns
+- Per-clock controls: toggle between angle mode (degrees) and time mode
+- Individual adjustment for each clock's hour/minute hands
+
+---
+
+## Session 2 — 2025-01-28
+
+### User
+> Is issue 4 done? It still appears open. And are you updating Conversation.md? Please add to CLAUDE.md to always add to Conversation.md.
+
+### Assistant
+- Closed Issue #4 (was completed as part of Issues #2 and #3)
+- Created `CLAUDE.md` with instruction to always update `docs/Conversation.md`
+
+### User
+> Work on issue 6.
+
+### Assistant
+Completed Issue #6 — Make the AnalogClock tick in real time:
+- Created `src/hooks/useCurrentTime.ts` — hook that returns current hours/minutes/seconds, updating every second
+  - Syncs with wall clock by calculating ms until next second
+  - Proper cleanup of timeout and interval on unmount
+- Added `realTime` prop to `<AnalogClock>` — when `true`, ignores time props and uses live time from hook
+- Added `?realtime=true` query param support in `App.tsx` to demo the ticking clock
+- Added `.realtime-container` CSS class for centered real-time display
+- TypeScript build verified clean
+- Committed and pushed, closing issue #6
