@@ -482,3 +482,33 @@ Completed Issue #21 — ClockScreen controls panel:
   - Responsive: wraps on narrow screens
 - TypeScript and Vite build verified clean
 - Committed and pushed, closing issue #21
+
+### User
+> This is great work. Now, there are a number of different UI panels, please add an issue to put a row of buttons at the top of the app that allow you to switch between each page, then work on the issue.
+
+### Assistant
+Created Issue #23 — Navigation bar to switch between app views.
+
+Completed Issue #23 — Persistent nav bar with view switching:
+- Created `src/components/NavBar/NavBar.tsx`:
+  - `ViewKey` type: `'clock' | 'grid' | 'playground' | 'realtime' | 'gallery'`
+  - 5 nav items: Clock, Grid, Playground, Real Time, Gallery
+  - Props: `activeView`, `onViewChange` callback
+  - Segmented button group, active button highlighted (dark bg/white text)
+- Created `src/components/NavBar/NavBar.css`:
+  - Fixed position at top of viewport with white background and subtle bottom border
+  - `.nav-btn-group` / `.nav-btn`: consistent with existing button patterns (`.clock-btn` style)
+  - Active and hover states
+  - `z-index: 100` to stay above content
+- Refactored `src/App.tsx`:
+  - Replaced query-param-only routing with React state-driven view switching
+  - `getInitialView()` reads query params on mount for direct-link support
+  - `useState<ViewKey>` manages active view; clicking nav buttons switches instantly (no page reload)
+  - Single `<div className="app-content">` renders the active view
+  - Gallery view shows all digits 0-9 (previously the default overview)
+  - Default view: Clock
+- Updated `src/App.css`:
+  - `.app` changed to flex column layout (nav on top, content below)
+  - `.app-content` added with `padding-top: 56px` to clear fixed nav bar
+- TypeScript and Vite build verified clean
+- Committed and pushed, closing issue #23

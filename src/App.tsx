@@ -1,91 +1,69 @@
+import { useState } from 'react'
 import './App.css'
 import AnalogClock from './components/AnalogClock/AnalogClock'
 import ClockPlayground from './components/ClockPlayground/ClockPlayground'
 import DigitGrid from './components/DigitGrid/DigitGrid'
 import ClockScreen from './components/ClockScreen/ClockScreen'
+import NavBar from './components/NavBar/NavBar'
+import type { ViewKey } from './components/NavBar/NavBar'
 import { DIGITS } from './data/digits'
 
-// Query param modes:
-//   ?clock=true        — full clock screen (HH:MM with animated transitions)
-//   ?grid=true         — 2x3 grid with per-clock controls
-//   ?playground=true   — interactive clock playground
-//   ?realtime=true     — single ticking clock
-//   ?digit=X           — single digit display
-//   (none)             — all digits overview
 const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
-function App() {
+/** Read initial view from query params for direct-link support */
+function getInitialView(): ViewKey {
   const params = new URLSearchParams(window.location.search)
-  const singleDigit = params.get('digit')
-  const realTimeMode = params.get('realtime') === 'true'
-  const playgroundMode = params.get('playground') === 'true'
-  const gridMode = params.get('grid') === 'true'
-  const clockMode = params.get('clock') === 'true'
+  if (params.get('clock') === 'true') return 'clock'
+  if (params.get('grid') === 'true') return 'grid'
+  if (params.get('playground') === 'true') return 'playground'
+  if (params.get('realtime') === 'true') return 'realtime'
+  if (params.get('gallery') === 'true') return 'gallery'
+  // Also support ?digit=X as gallery view
+  if (params.get('digit')) return 'gallery'
+  // Default to clock
+  return 'clock'
+}
 
-  // Clock screen: full HH:MM display with animated digit transitions
-  if (clockMode) {
-    return (
-      <div className="app">
-        <ClockScreen />
-      </div>
-    )
-  }
-
-  // Grid mode: 2x3 digit grid with per-clock controls
-  if (gridMode) {
-    return (
-      <div className="app">
-        <DigitGrid />
-      </div>
-    )
-  }
-
-  // Playground mode: interactive clock with controls
-  if (playgroundMode) {
-    return (
-      <div className="app">
-        <ClockPlayground />
-      </div>
-    )
-  }
-
-  // Real-time clock mode: show a single ticking clock
-  if (realTimeMode) {
-    return (
-      <div className="app">
-        <div className="realtime-container">
-          <AnalogClock
-            size={300}
-            realTime={true}
-            showSecondHand={true}
-            showTickMarks={true}
-          />
-        </div>
-      </div>
-    )
-  }
-
-  const digitsToShow = singleDigit && DIGITS[singleDigit] ? [singleDigit] : ALL_DIGITS
+function App() {
+  const [activeView, setActiveView] = useState<ViewKey>(getInitialView)
 
   return (
     <div className="app">
-      <div className={singleDigit ? 'single-digit' : 'all-digits'}>
-        {digitsToShow.map((digit) => (
-          <div key={digit} className="digit-column">
-            {!singleDigit && <div className="digit-label">{digit}</div>}
-            <div className="digit-grid">
-              {DIGITS[digit].map((clock, i) => (
-                <AnalogClock
-                  key={i}
-                  size={singleDigit ? 120 : 80}
-                  hourAngleDeg={clock.hour}
-                  minuteAngleDeg={clock.minute}
-                  showSecondHand={false}
-                />
-              ))}
-            </div>
+      <NavBar activeView={activeView} onViewChange={setActiveView} />
+      <div className="app-content">
+        {activeView === 'clock' && <ClockScreen />}
+        {activeView === 'grid' && <DigitGrid />}
+        {activeView === 'playground' && <ClockPlayground />}
+        {activeView === 'realtime' && (
+          <div className="realtime-container">
+            <AnalogClock
+              size={300}
+              realTime={true}
+              showSecondHand={true}
+              showTickMarks={true}
+            />
           </div>
-        ))}
+        )}
+        {activeView === 'gallery' && (
+          <div className="all-digits">
+            {ALL_DIGITS.map((digit) => (
+              <div key={digit} className="digit-column">
+                <div className="digit-label">{digit}</div>
+                <div className="digit-grid">
+                  {DIGITS[digit].map((clock, i) => (
+                    <AnalogClock
+                      key={i}
+                      size={80}
+                      hourAngleDeg={clock.hour}
+                      minuteAngleDeg={clock.minute}
+                      showSecondHand={false}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

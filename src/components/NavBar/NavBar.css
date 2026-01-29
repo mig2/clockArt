@@ -1,0 +1,45 @@
+.nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 100;
+}
+
+.nav-btn-group {
+  display: flex;
+  gap: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nav-btn {
+  padding: 6px 16px;
+  border: none;
+  border-right: 1px solid #ccc;
+  background: #f5f5f5;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.nav-btn:last-child {
+  border-right: none;
+}
+
+.nav-btn.active {
+  background: #333;
+  color: #fff;
+}
+
+.nav-btn:hover:not(.active) {
+  background: #e8e8e8;
+}
