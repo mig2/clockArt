@@ -1,0 +1,15 @@
+.clock-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.clock-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

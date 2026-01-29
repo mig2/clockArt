@@ -413,3 +413,22 @@ Completed Issue #18 — ColonSeparator component:
   - `.colon-dot`: `border-radius: 50%` for perfect circles
 - TypeScript build verified clean
 - Committed and pushed, closing issue #18
+
+### User
+> Work on 19.
+
+### Assistant
+Completed Issue #19 — Main ClockScreen component with HH:MM display:
+- Created `src/components/ClockScreen/ClockScreen.tsx`:
+  - Composes 4 `DigitDisplay` instances (H1, H2, M1, M2) with `ColonSeparator` between hours and minutes
+  - Uses `useClockTime` hook for live time source
+  - `timeToDigits(hours, minutes)` splits time into 4 individual digit strings
+  - Tracks previous digits via `useRef` — only animates digits that actually change
+  - Each DigitDisplay is driven via `forwardRef` handle: `animateTo(digit, strategy, duration)`
+  - Algorithm map with all 4 strategies (shortest, sweep, staggered, wind-up); defaults to shortest path
+  - Constants: `CLOCK_SIZE=80`, `CLOCK_GAP=2`, `TRANSITION_DURATION=600ms`
+- Created `src/components/ClockScreen/ClockScreen.css`:
+  - `.clock-screen`: full-viewport centered flex layout
+  - `.clock-display`: horizontal flex row with 8px gap between digit groups
+- TypeScript build verified clean (`tsc --noEmit` and full Vite build)
+- Committed and pushed, closing issue #19
