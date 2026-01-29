@@ -459,3 +459,26 @@ Completed Issue #20 — Small seconds display in top-right corner:
   - `.seconds-display`: absolute positioned top-right, offset -80px
 - TypeScript and Vite build verified clean
 - Committed and pushed, closing issue #20
+
+### User
+> Work on 21.
+
+### Assistant
+Completed Issue #21 — ClockScreen controls panel:
+- Updated `src/components/ClockScreen/ClockScreen.tsx`:
+  - Wired full `useClockTime` return: `time`, `setTime`, `setNow`, `speed`, `setSpeed`
+  - Made `algorithm` stateful with `setAlgorithm`
+  - **Time row**: three number inputs (HH:MM:SS) with "Now" button to snap to wall-clock time
+  - **Algorithm row**: button group for all 4 strategies (Shortest Path, Synchronized Sweep, Staggered, Wind-Up)
+  - **Speed row**: preset buttons for 1×, 2×, 5×, 10×, 30×, 60× speed multipliers
+  - `SPEED_PRESETS` and `ALGORITHM_KEYS` constants for clean iteration
+- Updated `src/components/ClockScreen/ClockScreen.css`:
+  - `.clock-controls`: panel below clock display with border, rounded corners, light background
+  - `.clock-controls-row`: flex row with label + inputs/buttons
+  - `.clock-controls-label`: uppercase label (matches transition-controls style)
+  - `.time-input`: centered number inputs with tabular-nums
+  - `.now-btn`: bordered button for time reset
+  - `.clock-btn-group` / `.clock-btn`: segmented button group with active state (same pattern as DigitGrid)
+  - Responsive: wraps on narrow screens
+- TypeScript and Vite build verified clean
+- Committed and pushed, closing issue #21

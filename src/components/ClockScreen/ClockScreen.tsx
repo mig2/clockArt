@@ -34,9 +34,12 @@ const CLOCK_GAP = 2
 const GRID_HEIGHT = CLOCK_SIZE * 3 + CLOCK_GAP * 2
 const TRANSITION_DURATION = 600
 
+const SPEED_PRESETS = [1, 2, 5, 10, 30, 60]
+const ALGORITHM_KEYS = Object.keys(ALGORITHMS) as AlgorithmKey[]
+
 function ClockScreen() {
-  const { time } = useClockTime()
-  const [algorithm] = useState<AlgorithmKey>('shortest')
+  const { time, setTime, setNow, speed, setSpeed } = useClockTime()
+  const [algorithm, setAlgorithm] = useState<AlgorithmKey>('shortest')
 
   // Refs for HH:MM digit displays
   const h1Ref = useRef<DigitDisplayHandle>(null)
@@ -78,6 +81,70 @@ function ClockScreen() {
         </div>
         <div className="seconds-display">
           <SevenSegment value={ss} height={60} />
+        </div>
+      </div>
+
+      {/* Controls panel */}
+      <div className="clock-controls">
+        <div className="clock-controls-row">
+          <span className="clock-controls-label">Time</span>
+          <input
+            type="number"
+            min={0}
+            max={23}
+            value={time.hours}
+            onChange={(e) => setTime(Number(e.target.value), time.minutes, time.seconds)}
+            className="time-input"
+          />
+          <span className="time-separator">:</span>
+          <input
+            type="number"
+            min={0}
+            max={59}
+            value={time.minutes}
+            onChange={(e) => setTime(time.hours, Number(e.target.value), time.seconds)}
+            className="time-input"
+          />
+          <span className="time-separator">:</span>
+          <input
+            type="number"
+            min={0}
+            max={59}
+            value={time.seconds}
+            onChange={(e) => setTime(time.hours, time.minutes, Number(e.target.value))}
+            className="time-input"
+          />
+          <button className="now-btn" onClick={setNow}>Now</button>
+        </div>
+
+        <div className="clock-controls-row">
+          <span className="clock-controls-label">Algorithm</span>
+          <div className="clock-btn-group">
+            {ALGORITHM_KEYS.map((key) => (
+              <button
+                key={key}
+                className={algorithm === key ? 'clock-btn active' : 'clock-btn'}
+                onClick={() => setAlgorithm(key)}
+              >
+                {ALGORITHMS[key].label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="clock-controls-row">
+          <span className="clock-controls-label">Speed</span>
+          <div className="clock-btn-group">
+            {SPEED_PRESETS.map((s) => (
+              <button
+                key={s}
+                className={speed === s ? 'clock-btn active' : 'clock-btn'}
+                onClick={() => setSpeed(s)}
+              >
+                {s}×
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
