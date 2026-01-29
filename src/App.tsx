@@ -2,9 +2,11 @@ import './App.css'
 import AnalogClock from './components/AnalogClock/AnalogClock'
 import ClockPlayground from './components/ClockPlayground/ClockPlayground'
 import DigitGrid from './components/DigitGrid/DigitGrid'
+import ClockScreen from './components/ClockScreen/ClockScreen'
 import { DIGITS } from './data/digits'
 
 // Query param modes:
+//   ?clock=true        — full clock screen (HH:MM with animated transitions)
 //   ?grid=true         — 2x3 grid with per-clock controls
 //   ?playground=true   — interactive clock playground
 //   ?realtime=true     — single ticking clock
@@ -18,6 +20,16 @@ function App() {
   const realTimeMode = params.get('realtime') === 'true'
   const playgroundMode = params.get('playground') === 'true'
   const gridMode = params.get('grid') === 'true'
+  const clockMode = params.get('clock') === 'true'
+
+  // Clock screen: full HH:MM display with animated digit transitions
+  if (clockMode) {
+    return (
+      <div className="app">
+        <ClockScreen />
+      </div>
+    )
+  }
 
   // Grid mode: 2x3 digit grid with per-clock controls
   if (gridMode) {
