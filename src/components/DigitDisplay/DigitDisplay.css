@@ -1,0 +1,9 @@
+.digit-display {
+  display: grid;
+}
+
+.digit-display-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -343,3 +343,36 @@ Completed Issue #15:
 - Uses `useRef` to track cycle state for the sequential setTimeout chain
 - TypeScript build verified clean
 - Committed and pushed, closing issue #15
+
+### User
+> Now let's move on and create a clock screen. For this, we will need 4 2×3 grids to represent the hh:mm of the clock. For seconds, let's create a two-digit small digit display to the top right of the hh:mm. I'd like controls to set the clock, the algorithm for transitions, and the ability to run the clock fast (1s in 1s = normal, 1s in 10s = 10× speed). Create issues and then we can review and begin work.
+
+### Assistant
+Created 7 issues for the clock screen feature:
+- **#16** — DigitDisplay: reusable single-digit 2×3 grid component (building block)
+- **#17** — useClockTime: hook with adjustable speed multiplier and manual time setting
+- **#18** — ColonSeparator: colon between HH and MM
+- **#19** — ClockScreen: main HH:MM display composing 4 DigitDisplays
+- **#20** — Seconds display: small SS in top-right corner
+- **#21** — Controls panel: time setting, algorithm picker, speed control
+- **#22** — Wire ClockScreen into App.tsx routing
+
+Build order: #16, #17, #18 (independent) → #19 (main assembly) → #20, #21 (additions) → #22 (routing)
+
+### User
+> Work on 16.
+
+### Assistant
+Completed Issue #16 — Reusable DigitDisplay component:
+- Created `src/components/DigitDisplay/DigitDisplay.tsx`:
+  - `forwardRef` component exposing `DigitDisplayHandle` via `useImperativeHandle`
+  - Handle provides: `animateTo(digit, strategy, duration)`, `setDigit(digit)`, `isAnimating`
+  - Internally uses `useDigitTransition` hook for animation state
+  - Props: `digit` (string "0"-"9"), `clockSize` (px, default 80), `gap` (px, default 2)
+  - Renders 2×3 CSS grid of AnalogClocks driven by transition angles
+  - Snaps to new digit when `digit` prop changes externally (if not animating)
+  - Tracks current digit via `useRef` to avoid redundant updates
+- Created `src/components/DigitDisplay/DigitDisplay.css`:
+  - `.digit-display` grid container, `.digit-display-cell` centered flex
+- TypeScript build verified clean (full `tsc --noEmit`)
+- Committed and pushed, closing issue #16
