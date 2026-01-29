@@ -376,3 +376,23 @@ Completed Issue #16 — Reusable DigitDisplay component:
   - `.digit-display` grid container, `.digit-display-cell` centered flex
 - TypeScript build verified clean (full `tsc --noEmit`)
 - Committed and pushed, closing issue #16
+
+### User
+> Work on 17.
+
+### Assistant
+Completed Issue #17 — useClockTime hook with adjustable speed:
+- Created `src/hooks/useClockTime.ts`:
+  - Returns `{ time, setTime, setNow, speed, setSpeed }`
+  - `time`: `{ hours, minutes, seconds }` — current simulated clock time
+  - `setTime(h, m, s)`: manually set the clock to any time
+  - `setNow()`: reset to current wall-clock time
+  - `speed` / `setSpeed(s)`: speed multiplier (1–60), clamped
+  - Interval = `1000 / speed` ms, each tick advances 1 simulated second
+  - speed=1: real time, speed=10: 10× (10 sim seconds per real second), speed=60: 1 sim minute per real second
+  - `tickForward()` helper handles second→minute→hour→day rollover
+  - Uses `useRef` for current time to avoid stale closures in interval callback
+  - Effect re-runs when speed changes, preserving current time position
+  - Initializes to wall-clock time via `getNow()`
+- TypeScript build verified clean
+- Committed and pushed, closing issue #17
