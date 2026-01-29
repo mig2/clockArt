@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import AnalogClock from '../AnalogClock/AnalogClock'
+import { useClockStyle } from '../../contexts/ClockStyleContext'
+import type { ClockStyle } from '../../contexts/ClockStyleContext'
 import './ClockPlayground.css'
 
 type PositionMode = 'angle' | 'time'
@@ -26,6 +28,13 @@ interface PlaygroundState {
   secondHandColor: string
   tickColor: string
   faceColor: string
+  // Stroke widths
+  hourHandWidth: number
+  minuteHandWidth: number
+  secondHandWidth: number
+  faceStrokeWidth: number
+  tickStrokeWidth: number
+  cardinalTickStrokeWidth: number
 }
 
 const DEFAULT_STATE: PlaygroundState = {
@@ -45,13 +54,69 @@ const DEFAULT_STATE: PlaygroundState = {
   secondHandColor: '#e74c3c',
   tickColor: '#333333',
   faceColor: '#333333',
+  hourHandWidth: 4,
+  minuteHandWidth: 2.5,
+  secondHandWidth: 1,
+  faceStrokeWidth: 1.5,
+  tickStrokeWidth: 1,
+  cardinalTickStrokeWidth: 2,
 }
 
 function ClockPlayground() {
-  const [state, setState] = useState<PlaygroundState>(DEFAULT_STATE)
+  const { style: globalStyle, setStyle: setGlobalStyle, resetStyle: resetGlobalStyle } = useClockStyle()
+
+  // Initialize playground state from the global style so saved settings are retained
+  const [state, setState] = useState<PlaygroundState>(() => ({
+    ...DEFAULT_STATE,
+    hourHandColor: globalStyle.hourHandColor,
+    minuteHandColor: globalStyle.minuteHandColor,
+    secondHandColor: globalStyle.secondHandColor,
+    tickColor: globalStyle.tickColor,
+    faceColor: globalStyle.faceColor,
+    hourHandWidth: globalStyle.hourHandWidth,
+    minuteHandWidth: globalStyle.minuteHandWidth,
+    secondHandWidth: globalStyle.secondHandWidth,
+    faceStrokeWidth: globalStyle.faceStrokeWidth,
+    tickStrokeWidth: globalStyle.tickStrokeWidth,
+    cardinalTickStrokeWidth: globalStyle.cardinalTickStrokeWidth,
+    showTickMarks: globalStyle.showTickMarks,
+    showCardinalTicks: globalStyle.showCardinalTicks,
+    showRegularTicks: globalStyle.showRegularTicks,
+  }))
+  const [saved, setSaved] = useState(false)
 
   const update = <K extends keyof PlaygroundState>(key: K, value: PlaygroundState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }))
+    setSaved(false)
+  }
+
+  /** Extract the style portion of playground state for saving globally */
+  const extractStyle = (): ClockStyle => ({
+    hourHandColor: state.hourHandColor,
+    minuteHandColor: state.minuteHandColor,
+    secondHandColor: state.secondHandColor,
+    tickColor: state.tickColor,
+    faceColor: state.faceColor,
+    hourHandWidth: state.hourHandWidth,
+    minuteHandWidth: state.minuteHandWidth,
+    secondHandWidth: state.secondHandWidth,
+    faceStrokeWidth: state.faceStrokeWidth,
+    tickStrokeWidth: state.tickStrokeWidth,
+    cardinalTickStrokeWidth: state.cardinalTickStrokeWidth,
+    showTickMarks: state.showTickMarks,
+    showCardinalTicks: state.showCardinalTicks,
+    showRegularTicks: state.showRegularTicks,
+  })
+
+  const handleSaveGlobal = () => {
+    setGlobalStyle(extractStyle())
+    setSaved(true)
+  }
+
+  const handleResetGlobal = () => {
+    resetGlobalStyle()
+    setState(DEFAULT_STATE)
+    setSaved(false)
   }
 
   // Build clock props based on position mode
@@ -84,6 +149,12 @@ function ClockPlayground() {
           secondHandColor={state.secondHandColor}
           tickColor={state.tickColor}
           faceColor={state.faceColor}
+          hourHandWidth={state.hourHandWidth}
+          minuteHandWidth={state.minuteHandWidth}
+          secondHandWidth={state.secondHandWidth}
+          faceStrokeWidth={state.faceStrokeWidth}
+          tickStrokeWidth={state.tickStrokeWidth}
+          cardinalTickStrokeWidth={state.cardinalTickStrokeWidth}
         />
       </div>
 
@@ -224,10 +295,68 @@ function ClockPlayground() {
           />
         </fieldset>
 
-        {/* Reset */}
-        <button className="reset-btn" onClick={() => setState(DEFAULT_STATE)}>
-          Reset All
-        </button>
+        {/* Stroke Widths */}
+        <fieldset className="control-group">
+          <legend>Stroke Widths</legend>
+          <SliderControl
+            label="Hour hand"
+            value={state.hourHandWidth}
+            min={0.5}
+            max={8}
+            step={0.5}
+            onChange={(v) => update('hourHandWidth', v)}
+          />
+          <SliderControl
+            label="Minute hand"
+            value={state.minuteHandWidth}
+            min={0.5}
+            max={8}
+            step={0.5}
+            onChange={(v) => update('minuteHandWidth', v)}
+          />
+          <SliderControl
+            label="Second hand"
+            value={state.secondHandWidth}
+            min={0.5}
+            max={4}
+            step={0.5}
+            onChange={(v) => update('secondHandWidth', v)}
+          />
+          <SliderControl
+            label="Clock face"
+            value={state.faceStrokeWidth}
+            min={0}
+            max={4}
+            step={0.5}
+            onChange={(v) => update('faceStrokeWidth', v)}
+          />
+          <SliderControl
+            label="Tick marks"
+            value={state.tickStrokeWidth}
+            min={0}
+            max={4}
+            step={0.5}
+            onChange={(v) => update('tickStrokeWidth', v)}
+          />
+          <SliderControl
+            label="Cardinal ticks"
+            value={state.cardinalTickStrokeWidth}
+            min={0}
+            max={6}
+            step={0.5}
+            onChange={(v) => update('cardinalTickStrokeWidth', v)}
+          />
+        </fieldset>
+
+        {/* Global style actions */}
+        <div className="playground-actions">
+          <button className="save-global-btn" onClick={handleSaveGlobal}>
+            {saved ? '✓ Saved' : 'Save as Global Style'}
+          </button>
+          <button className="reset-btn" onClick={handleResetGlobal}>
+            Reset All
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -240,6 +369,7 @@ function SliderControl({
   value,
   min,
   max,
+  step = 1,
   unit = '',
   onChange,
 }: {
@@ -247,6 +377,7 @@ function SliderControl({
   value: number
   min: number
   max: number
+  step?: number
   unit?: string
   onChange: (value: number) => void
 }) {
@@ -258,6 +389,7 @@ function SliderControl({
           type="range"
           min={min}
           max={max}
+          step={step}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
         />
@@ -265,6 +397,7 @@ function SliderControl({
           type="number"
           min={min}
           max={max}
+          step={step}
           value={value}
           onChange={(e) => {
             const v = Number(e.target.value)

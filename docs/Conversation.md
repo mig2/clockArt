@@ -512,3 +512,41 @@ Completed Issue #23 — Persistent nav bar with view switching:
   - `.app-content` added with `padding-top: 56px` to clear fixed nav bar
 - TypeScript and Vite build verified clean
 - Committed and pushed, closing issue #23
+
+### User
+> Add a PR to add to the clock view the algorithm duration. Then add the following new features. 1. In the playground, I would like to be able to change the width of the hands (second, minute and hour) and also the clock face and tick marks. 2. I would like to be able to use the playground to set the display and colors for all clocks in the app, so there should be a save button that saves the color and display configuration from the playground and replicates that across all clocks in the app.
+
+### Assistant
+Created three issues and implemented all on a feature branch `feature/clock-style-controls`:
+
+**Issue #24 — Transition duration control for ClockScreen:**
+- Replaced hardcoded `TRANSITION_DURATION = 600` with stateful `duration` + preset buttons
+- Duration presets: 300ms, 600ms, 1s, 1.5s, 2s
+- Added Duration row to controls panel (between Algorithm and Speed rows)
+- Duration wired into `animateTo` calls
+
+**Issue #25 — Hand width and stroke controls in ClockPlayground:**
+- Extended `AnalogClockProps` with 6 new stroke width props:
+  - `hourHandWidth` (default 4), `minuteHandWidth` (default 2.5), `secondHandWidth` (default 1)
+  - `faceStrokeWidth` (default 1.5), `tickStrokeWidth` (default 1), `cardinalTickStrokeWidth` (default 2)
+- Added "Stroke Widths" fieldset to ClockPlayground with slider controls (0.5 step)
+- Updated `SliderControl` to accept `step` prop
+- AnalogClock SVG elements now use inline style for both color and stroke width
+
+**Issue #26 — Global clock style context:**
+- Created `src/contexts/ClockStyleContext.tsx`:
+  - `ClockStyle` interface: colors + stroke widths + display toggles
+  - `ClockStyleProvider`: wraps app, manages global style state
+  - `useClockStyle()` hook for consuming the context
+  - Persists to `localStorage` under `clockart-global-style` key
+  - `loadStyle()` merges stored JSON with defaults for forward compatibility
+- Wrapped `App` in `<ClockStyleProvider>`
+- AnalogClock now consumes context: `useClockStyle()` provides defaults, explicit props override
+- ClockPlayground:
+  - "Save as Global Style" button extracts style from playground state → context + localStorage
+  - "Reset All" resets both playground state and global style
+  - `saved` state shows "✓ Saved" confirmation, resets on any change
+- Styled `.save-global-btn` (dark, prominent) and `.playground-actions` row
+
+Created PR with all three features.
+- TypeScript and Vite build verified clean

@@ -32,7 +32,7 @@ function timeToDigits(hours: number, minutes: number): [string, string, string, 
 const CLOCK_SIZE = 80
 const CLOCK_GAP = 2
 const GRID_HEIGHT = CLOCK_SIZE * 3 + CLOCK_GAP * 2
-const TRANSITION_DURATION = 600
+const DURATION_PRESETS = [300, 600, 1000, 1500, 2000]
 
 const SPEED_PRESETS = [1, 2, 5, 10, 30, 60]
 const ALGORITHM_KEYS = Object.keys(ALGORITHMS) as AlgorithmKey[]
@@ -40,6 +40,7 @@ const ALGORITHM_KEYS = Object.keys(ALGORITHMS) as AlgorithmKey[]
 function ClockScreen() {
   const { time, setTime, setNow, speed, setSpeed } = useClockTime()
   const [algorithm, setAlgorithm] = useState<AlgorithmKey>('shortest')
+  const [duration, setDuration] = useState(600)
 
   // Refs for HH:MM digit displays
   const h1Ref = useRef<DigitDisplayHandle>(null)
@@ -62,12 +63,12 @@ function ClockScreen() {
 
     for (let i = 0; i < 4; i++) {
       if (curr[i] !== prev[i] && refs[i].current) {
-        refs[i].current!.animateTo(curr[i], strategy, TRANSITION_DURATION)
+        refs[i].current!.animateTo(curr[i], strategy, duration)
       }
     }
 
     prevDigitsRef.current = curr
-  }, [h1, h2, m1, m2, algorithm])
+  }, [h1, h2, m1, m2, algorithm, duration])
 
   return (
     <div className="clock-screen">
@@ -127,6 +128,21 @@ function ClockScreen() {
                 onClick={() => setAlgorithm(key)}
               >
                 {ALGORITHMS[key].label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="clock-controls-row">
+          <span className="clock-controls-label">Duration</span>
+          <div className="clock-btn-group">
+            {DURATION_PRESETS.map((d) => (
+              <button
+                key={d}
+                className={duration === d ? 'clock-btn active' : 'clock-btn'}
+                onClick={() => setDuration(d)}
+              >
+                {d >= 1000 ? `${d / 1000}s` : `${d}ms`}
               </button>
             ))}
           </div>
