@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react'
 import DigitDisplay from '../DigitDisplay/DigitDisplay'
 import type { DigitDisplayHandle } from '../DigitDisplay/DigitDisplay'
 import ColonSeparator from '../ColonSeparator/ColonSeparator'
+import SevenSegment from '../SevenSegment/SevenSegment'
 import { useClockTime } from '../../hooks/useClockTime'
 import {
   shortestPathStrategy,
@@ -37,7 +38,7 @@ function ClockScreen() {
   const { time } = useClockTime()
   const [algorithm] = useState<AlgorithmKey>('shortest')
 
-  // Refs for each digit display
+  // Refs for HH:MM digit displays
   const h1Ref = useRef<DigitDisplayHandle>(null)
   const h2Ref = useRef<DigitDisplayHandle>(null)
   const m1Ref = useRef<DigitDisplayHandle>(null)
@@ -47,8 +48,9 @@ function ClockScreen() {
   const prevDigitsRef = useRef<[string, string, string, string]>(['', '', '', ''])
 
   const [h1, h2, m1, m2] = timeToDigits(time.hours, time.minutes)
+  const ss = String(time.seconds).padStart(2, '0')
 
-  // Animate only digits that changed
+  // Animate only HH:MM digits that changed
   useEffect(() => {
     const prev = prevDigitsRef.current
     const curr: [string, string, string, string] = [h1, h2, m1, m2]
@@ -66,12 +68,17 @@ function ClockScreen() {
 
   return (
     <div className="clock-screen">
-      <div className="clock-display">
-        <DigitDisplay ref={h1Ref} digit={h1} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
-        <DigitDisplay ref={h2Ref} digit={h2} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
-        <ColonSeparator height={GRID_HEIGHT} />
-        <DigitDisplay ref={m1Ref} digit={m1} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
-        <DigitDisplay ref={m2Ref} digit={m2} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
+      <div className="clock-display-wrapper">
+        <div className="clock-display">
+          <DigitDisplay ref={h1Ref} digit={h1} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
+          <DigitDisplay ref={h2Ref} digit={h2} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
+          <ColonSeparator height={GRID_HEIGHT} />
+          <DigitDisplay ref={m1Ref} digit={m1} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
+          <DigitDisplay ref={m2Ref} digit={m2} clockSize={CLOCK_SIZE} gap={CLOCK_GAP} />
+        </div>
+        <div className="seconds-display">
+          <SevenSegment value={ss} height={60} />
+        </div>
       </div>
     </div>
   )

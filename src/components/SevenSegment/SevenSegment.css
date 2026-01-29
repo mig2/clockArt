@@ -1,0 +1,16 @@
+.seven-segment {
+  display: flex;
+  align-items: center;
+}
+
+.seven-segment-digit {
+  display: block;
+}
+
+.seg-on {
+  stroke: #333;
+}
+
+.seg-off {
+  stroke: #e8e8e8;
+}

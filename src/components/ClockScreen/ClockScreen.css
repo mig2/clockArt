@@ -8,8 +8,21 @@
   padding: 24px;
 }
 
+.clock-display-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .clock-display {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Small seconds display — top-right of main display */
+.seconds-display {
+  position: absolute;
+  top: 0;
+  right: -80px;
+  opacity: 0.5;
 }

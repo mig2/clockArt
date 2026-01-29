@@ -432,3 +432,30 @@ Completed Issue #19 — Main ClockScreen component with HH:MM display:
   - `.clock-display`: horizontal flex row with 8px gap between digit groups
 - TypeScript build verified clean (`tsc --noEmit` and full Vite build)
 - Committed and pushed, closing issue #19
+
+### User
+> Work on 20. (Seconds display — but as standard 7-segment, not 2×3 analog clocks)
+
+### Assistant
+Completed Issue #20 — Small seconds display in top-right corner:
+- Created `src/components/SevenSegment/SevenSegment.tsx`:
+  - SVG-based 7-segment digital display component
+  - `SevenSegmentDigit`: renders a single digit with 7 line segments (a-g)
+  - `SEGMENT_MAP`: lookup table for which segments are lit per digit (0-9)
+  - Segments styled as SVG lines with `strokeLinecap: round`
+  - Lit segments: `#333`, unlit segments: `#e8e8e8` (faint ghost)
+  - `SevenSegment` wrapper renders multi-character strings (e.g. "42")
+  - Props: `value` (string), `height` (px, default 48)
+  - Width computed proportionally: `height * 0.55`
+- Created `src/components/SevenSegment/SevenSegment.css`:
+  - `.seven-segment`: flex row layout
+  - `.seg-on` / `.seg-off`: segment stroke colors
+- Updated `ClockScreen.tsx`:
+  - Replaced analog DigitDisplay seconds with `<SevenSegment value={ss} height={60} />`
+  - Seconds formatted as zero-padded 2-digit string
+  - Positioned top-right of main display at 50% opacity
+- Updated `ClockScreen.css`:
+  - `.clock-display-wrapper`: relative positioning container
+  - `.seconds-display`: absolute positioned top-right, offset -80px
+- TypeScript and Vite build verified clean
+- Committed and pushed, closing issue #20
