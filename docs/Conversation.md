@@ -396,3 +396,20 @@ Completed Issue #17 — useClockTime hook with adjustable speed:
   - Initializes to wall-clock time via `getNow()`
 - TypeScript build verified clean
 - Committed and pushed, closing issue #17
+
+### User
+> Work on 18.
+
+### Assistant
+Completed Issue #18 — ColonSeparator component:
+- Created `src/components/ColonSeparator/ColonSeparator.tsx`:
+  - Two vertically-centered circular dots styled as a colon (:)
+  - Props: `height` (matches digit grid height), `dotScale` (fraction of height, default 0.06)
+  - Dot size: `max(6px, height * dotScale)` — minimum 6px for visibility
+  - Dot spacing: 20% of total height between dots
+  - Clean minimal design: `#333` filled circles, consistent with clock aesthetic
+- Created `src/components/ColonSeparator/ColonSeparator.css`:
+  - Flex column layout, centered, with 4px horizontal padding
+  - `.colon-dot`: `border-radius: 50%` for perfect circles
+- TypeScript build verified clean
+- Committed and pushed, closing issue #18
