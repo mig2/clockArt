@@ -4,6 +4,12 @@
 
 **Always update `docs/Conversation.md`** after completing significant work or receiving user instructions. This file serves as a running log of all prompts and responses throughout development.
 
+**Include thinking and reasoning.** When investigating bugs, designing solutions, or making architectural decisions, document the analysis process in `#### Thinking:` sections. This includes:
+- Root cause analysis and how you traced the problem
+- Alternative approaches considered and why they were accepted or rejected
+- Key insights that led to the chosen solution
+- Code snippets illustrating the problem and fix
+
 ## Project Context
 
 This is a digital clock built from analog clock faces. Each digit (0-9) is composed of a 2x3 grid of analog clocks whose hands are positioned to form the digit shape.

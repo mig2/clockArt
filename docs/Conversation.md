@@ -557,14 +557,91 @@ Created PR with all three features.
 ### Assistant
 Created Issue #28 — Fix digit transition flash.
 
-**Root cause:** When a digit changes (e.g. `m2` goes from `"3"` to `"4"`), two React effects fire in order:
-1. **DigitDisplay's prop-sync `useEffect`** (child) — sees `digit !== currentDigitRef.current`, calls `transition.setAngles(digitToAngles("4"))` → **snap flash to "4"**
-2. **ClockScreen's animation `useEffect`** (parent) — calls `animateTo("4")` which reads `anglesRef.current` (now "4" angles from step 1), so the animation starts from "4"
+#### Thinking: Investigating the flash bug
 
-The user sees: 3 → flash to 4 → animation starts from wrong position.
+The user reported seeing "3 → 4 → 3 → transition → 4" instead of "3 → transition → 4". This meant something was snapping to the target digit before the animation started, then snapping back to the source and animating.
 
-**Fix:** Changed DigitDisplay's prop-sync effect to **defer the snap by one `requestAnimationFrame`**. This gives the parent's `useEffect` a chance to call `animateTo` first. By the time the deferred callback fires, the animation is already running (`transition.isAnimating` is true), so the snap is skipped. For non-animated prop changes (no parent calling `animateTo`), the snap still works — it just happens one frame later, which is imperceptible.
+I traced the rendering flow across two components to understand the race condition:
+
+**ClockScreen** (parent): When time ticks, it updates digit state (e.g. `m2` from `"3"` to `"4"`), which triggers a re-render. A `useEffect` watches for digit changes and calls `digitRef.animateTo(newDigit, strategy, duration)` on the child DigitDisplay's imperative handle.
+
+**DigitDisplay** (child): Has its own `useEffect` watching the `digit` prop. When `digit` changes, it calls `transition.setAngles(digitToAngles(digit))` — an immediate snap to the target angles.
+
+**The key insight**: React runs effects bottom-up (child before parent). So the execution order is:
+1. DigitDisplay's effect fires first → snaps to "4" (the flash!)
+2. ClockScreen's effect fires second → calls `animateTo("4")`, but `anglesRef.current` is now already "4" from step 1, so the animation starts from "4" instead of "3"
+
+I considered several approaches:
+- **Flag-based approach**: Add an `animatingViaRefRef` flag to signal between parent and child — too complex, fragile coupling
+- **`getAngles` snapshot approach**: Add a getter to the transition hook so parent can read current angles — doesn't solve the ordering problem
+- **`requestAnimationFrame` deferral**: Defer the child's snap by one frame — by then, the parent's `animateTo` has already started, so `transition.isAnimating` is true and the snap is skipped
+
+I chose the `requestAnimationFrame` approach as it's the simplest and most robust — it leverages the fact that the parent's effect will always have run by the next animation frame.
+
+#### Fix for ClockScreen (DigitDisplay)
+
+Changed DigitDisplay's prop-sync effect from an immediate snap to a deferred snap:
+
+```typescript
+useEffect(() => {
+  if (digit !== currentDigitRef.current) {
+    currentDigitRef.current = digit
+    const rafId = requestAnimationFrame(() => {
+      if (!transition.isAnimating) {
+        transition.setAngles(digitToAngles(digit))
+      }
+    })
+    return () => cancelAnimationFrame(rafId)
+  }
+}, [digit, transition])
+```
+
+The deferred callback checks `transition.isAnimating` — if the parent's `animateTo` has already kicked off the animation, the snap is skipped entirely. For non-animated prop changes (where no parent calls `animateTo`), the snap still works, just one frame later — imperceptible to the user.
+
+### User
+> I am still seeing the flash in the grid panel view.
+
+### Assistant
+
+#### Thinking: Investigating the DigitGrid flash
+
+The DigitDisplay fix only addressed ClockScreen. The DigitGrid has a separate but related race condition.
+
+In DigitGrid, the `getClockProps` function determines what angles to render:
+
+```typescript
+function getClockProps(index: number) {
+  if (transition.isAnimating) {
+    // During animation: use transition.angles
+    return { hourAngleDeg: a.hour, minuteAngleDeg: a.minute }
+  }
+  // Otherwise: use clocks state
+  return { hourAngleDeg: clock.hourAngle, minuteAngleDeg: clock.minuteAngle }
+}
+```
+
+The problem: when animation's `onComplete` fires, it sets `isAnimating = false` and updates `transition.angles` to the target. But the `clocks` state (which `getClockProps` falls back to when `!isAnimating`) is updated separately via `setTimeout(duration + 50)`. There's a window where:
+
+1. `isAnimating` becomes `false` (animation complete)
+2. `getClockProps` falls back to `clocks` state
+3. `clocks` still shows the "from" digit (setTimeout hasn't fired yet)
+4. → Flash back to the old digit!
+
+**The fix**: When displaying a digit preset (not in custom mode), always use `transition.angles` regardless of `isAnimating`. The transition hook always holds the correct angles — during animation they're the interpolated frame, and after completion they're the target. Only fall back to per-clock manual state (`clocks`) when in custom mode.
+
+```typescript
+function getClockProps(index: number) {
+  if (selectedDigit !== 'custom' || transition.isAnimating) {
+    const a = transition.angles[index]
+    return { hourAngleDeg: a.hour, minuteAngleDeg: a.minute }
+  }
+  // Only for custom mode when idle...
+}
+```
+
+#### Fix applied
 
 - Updated `src/components/DigitDisplay/DigitDisplay.tsx`: prop-sync effect uses `requestAnimationFrame` + `cancelAnimationFrame` cleanup; skips snap if animation is already running
+- Updated `src/components/DigitGrid/DigitGrid.tsx`: `getClockProps` now uses `transition.angles` for all digit presets (not just during animation), eliminating the stale-state flash
 - TypeScript and Vite build verified clean
 - Committed and pushed, closing issue #28
