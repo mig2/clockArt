@@ -699,3 +699,25 @@ Note: `Claude.md` and `CLAUDE.md` are the same file on macOS (case-insensitive f
 
 ### Assistant
 Updated both files. `CLAUDE.md` now specifies that Conversation.md must be a verbatim transcript — user messages copied exactly, assistant responses copied in full without summarizing. Added a note to Conversation.md that Sessions 1 and 2 were recorded in summary form before this policy was established, and converted the Session 3 entries to verbatim format.
+
+### User
+> In the grid view, am I able to save the digits that I design? I note a "pencil" icon after 9
+
+### Assistant
+No, currently you can't save custom digit designs from the grid view. The pencil icon (✎) just indicates you're in "custom" mode — meaning you've manually adjusted clock positions away from a preset digit pattern. But there's no persistence; if you switch to a different digit or navigate away, the custom positions are lost.
+
+Would you like me to add a feature to save custom digit designs? For example, you could design a custom pattern, give it a name, and it would be saved (to localStorage or similar) so you can recall it later. Or did you have something different in mind?
+
+### User
+> yes, I would like to add the ability to load and save a custom digit design. I'd also like the ability to set that design to be default and used across the app. finally I would like to organize the gallery to show alternate designs for digits. If there are multiple digit designs, the one currently used in the app should have an indication, perhaps a colored border? Also, I would like one of the views in the gallery to be the current full set of digits used in the app (as it is now). Please open issues for all of these and then we can begin to work on them
+
+### Assistant
+Created four issues to cover the full set of features:
+
+- [#29 — Save and load custom digit designs from Grid view](https://github.com/mig2/clockArt/issues/29): Add save/load/delete for custom clock configurations in the Grid view, persisted to localStorage. Each saved design is associated with a digit (0-9), has a name, and stores the 6 clock angle pairs.
+
+- [#30 — Set a custom digit design as the active design used across the app](https://github.com/mig2/clockArt/issues/30): Create a DigitDesignContext that holds the currently active design for each digit 0-9. By default it uses the hardcoded DIGITS, but users can swap in custom designs. Persists to localStorage. All components (ClockScreen, DigitDisplay, Gallery) read from this context instead of directly from DIGITS. Depends on #29.
+
+- [#31 — Gallery view: show alternate digit designs with active indicator](https://github.com/mig2/clockArt/issues/31): Redesign the Gallery to show all available designs per digit (default + custom). The currently active design gets a colored border to distinguish it. Each variant shows its name. Users can set a design as active from the gallery. Depends on #29 and #30.
+
+- [#32 — Gallery view: show current full digit set overview](https://github.com/mig2/clockArt/issues/32): Add a "Current Set" section to the Gallery showing all 10 active digits as they appear in the Clock view. This is essentially the current Gallery behavior but labeled and positioned as an overview, coexisting with the per-digit alternates section from #31. Depends on #30 and #31.
