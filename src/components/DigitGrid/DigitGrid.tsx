@@ -166,10 +166,12 @@ function DigitGrid() {
   }, [algorithm, duration, transition, isCycling])
 
   // --- Determine which angles to show ---
-  // During animation: use transition.angles
-  // Otherwise: use manual clock states
+  // For digit presets (and during any animation): always use transition.angles
+  // so we never flash stale `clocks` state when onComplete fires before the
+  // setTimeout that syncs `clocks`.
+  // Only fall back to per-clock manual state in custom mode while idle.
   function getClockProps(index: number) {
-    if (transition.isAnimating) {
+    if (selectedDigit !== 'custom' || transition.isAnimating) {
       const a = transition.angles[index]
       return {
         hourAngleDeg: a.hour,

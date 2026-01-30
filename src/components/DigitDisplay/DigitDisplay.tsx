@@ -51,11 +51,20 @@ const DigitDisplay = forwardRef<DigitDisplayHandle, DigitDisplayProps>(
       },
     }), [transition])
 
-    // When the digit prop changes externally (without animation), snap to it
+    // When the digit prop changes externally (without animation), we defer
+    // the snap by one animation frame. This gives the parent's useEffect a
+    // chance to call animateTo first. If an animation is running by the time
+    // the deferred callback fires, we skip the snap — the animation is
+    // already handling the transition.
     useEffect(() => {
-      if (digit !== currentDigitRef.current && !transition.isAnimating) {
-        transition.setAngles(digitToAngles(digit))
+      if (digit !== currentDigitRef.current) {
         currentDigitRef.current = digit
+        const rafId = requestAnimationFrame(() => {
+          if (!transition.isAnimating) {
+            transition.setAngles(digitToAngles(digit))
+          }
+        })
+        return () => cancelAnimationFrame(rafId)
       }
     }, [digit, transition])
 

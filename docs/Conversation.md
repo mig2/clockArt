@@ -550,3 +550,21 @@ Created three issues and implemented all on a feature branch `feature/clock-styl
 
 Created PR with all three features.
 - TypeScript and Vite build verified clean
+
+### User
+> There is a bug in the digit transition. The image transitions to the new digit briefly, then back to the old one and then proceeds through the transition to the new one. So, for example, from 3 to 4, instead of 3 -> transition -> 4. I see 3 -> 4 -> 3 -> transition -> 4. Please open an issue and then fix.
+
+### Assistant
+Created Issue #28 — Fix digit transition flash.
+
+**Root cause:** When a digit changes (e.g. `m2` goes from `"3"` to `"4"`), two React effects fire in order:
+1. **DigitDisplay's prop-sync `useEffect`** (child) — sees `digit !== currentDigitRef.current`, calls `transition.setAngles(digitToAngles("4"))` → **snap flash to "4"**
+2. **ClockScreen's animation `useEffect`** (parent) — calls `animateTo("4")` which reads `anglesRef.current` (now "4" angles from step 1), so the animation starts from "4"
+
+The user sees: 3 → flash to 4 → animation starts from wrong position.
+
+**Fix:** Changed DigitDisplay's prop-sync effect to **defer the snap by one `requestAnimationFrame`**. This gives the parent's `useEffect` a chance to call `animateTo` first. By the time the deferred callback fires, the animation is already running (`transition.isAnimating` is true), so the snap is skipped. For non-animated prop changes (no parent calling `animateTo`), the snap still works — it just happens one frame later, which is imperceptible.
+
+- Updated `src/components/DigitDisplay/DigitDisplay.tsx`: prop-sync effect uses `requestAnimationFrame` + `cancelAnimationFrame` cleanup; skips snap if animation is already running
+- TypeScript and Vite build verified clean
+- Committed and pushed, closing issue #28
