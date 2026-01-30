@@ -2,13 +2,12 @@
 
 ## Conversation Log
 
-**Always update `docs/Conversation.md`** after completing significant work or receiving user instructions. This file serves as a running log of all prompts and responses throughout development.
-
-**Include thinking and reasoning.** When investigating bugs, designing solutions, or making architectural decisions, document the analysis process in `#### Thinking:` sections. This includes:
-- Root cause analysis and how you traced the problem
-- Alternative approaches considered and why they were accepted or rejected
-- Key insights that led to the chosen solution
-- Code snippets illustrating the problem and fix
+**Always update `docs/Conversation.md`** with a **verbatim** record of the conversation. This means:
+- User messages must be copied exactly as written, without any editing or paraphrasing
+- Assistant responses must be copied exactly as written — the full text, not a summary
+- Include all thinking, reasoning, analysis, code snippets, and explanations exactly as they appeared
+- Do **not** summarize, condense, or rewrite any part of the conversation
+- The file should read as a complete transcript that someone could follow to understand every detail of what was discussed and decided
 
 ## Project Context
 
