@@ -8,7 +8,7 @@ import NavBar from './components/NavBar/NavBar'
 import type { ViewKey } from './components/NavBar/NavBar'
 import { ClockStyleProvider } from './contexts/ClockStyleContext'
 import { SavedDesignsProvider } from './contexts/SavedDesignsContext'
-import { DIGITS } from './data/digits'
+import { DigitDesignProvider, useDigitDesign } from './contexts/DigitDesignContext'
 
 const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
@@ -26,50 +26,59 @@ function getInitialView(): ViewKey {
   return 'clock'
 }
 
-function App() {
+function AppContent() {
   const [activeView, setActiveView] = useState<ViewKey>(getInitialView)
+  const { getActiveDigit } = useDigitDesign()
 
+  return (
+    <div className="app">
+      <NavBar activeView={activeView} onViewChange={setActiveView} />
+      <div className="app-content">
+        {activeView === 'clock' && <ClockScreen />}
+        {activeView === 'grid' && <DigitGrid />}
+        {activeView === 'playground' && <ClockPlayground />}
+        {activeView === 'realtime' && (
+          <div className="realtime-container">
+            <AnalogClock
+              size={300}
+              realTime={true}
+              showSecondHand={true}
+              showTickMarks={true}
+            />
+          </div>
+        )}
+        {activeView === 'gallery' && (
+          <div className="all-digits">
+            {ALL_DIGITS.map((digit) => (
+              <div key={digit} className="digit-column">
+                <div className="digit-label">{digit}</div>
+                <div className="digit-grid">
+                  {getActiveDigit(digit).map((clock, i) => (
+                    <AnalogClock
+                      key={i}
+                      size={80}
+                      hourAngleDeg={clock.hour}
+                      minuteAngleDeg={clock.minute}
+                      showSecondHand={false}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function App() {
   return (
     <ClockStyleProvider>
       <SavedDesignsProvider>
-      <div className="app">
-        <NavBar activeView={activeView} onViewChange={setActiveView} />
-        <div className="app-content">
-          {activeView === 'clock' && <ClockScreen />}
-          {activeView === 'grid' && <DigitGrid />}
-          {activeView === 'playground' && <ClockPlayground />}
-          {activeView === 'realtime' && (
-            <div className="realtime-container">
-              <AnalogClock
-                size={300}
-                realTime={true}
-                showSecondHand={true}
-                showTickMarks={true}
-              />
-            </div>
-          )}
-          {activeView === 'gallery' && (
-            <div className="all-digits">
-              {ALL_DIGITS.map((digit) => (
-                <div key={digit} className="digit-column">
-                  <div className="digit-label">{digit}</div>
-                  <div className="digit-grid">
-                    {DIGITS[digit].map((clock, i) => (
-                      <AnalogClock
-                        key={i}
-                        size={80}
-                        hourAngleDeg={clock.hour}
-                        minuteAngleDeg={clock.minute}
-                        showSecondHand={false}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+        <DigitDesignProvider>
+          <AppContent />
+        </DigitDesignProvider>
       </SavedDesignsProvider>
     </ClockStyleProvider>
   )

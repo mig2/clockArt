@@ -1,14 +1,16 @@
 import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react'
 import AnalogClock from '../AnalogClock/AnalogClock'
-import { DIGITS } from '../../data/digits'
+import { useDigitDesign } from '../../contexts/DigitDesignContext'
 import { useDigitTransition } from '../../hooks/useDigitTransition'
 import type { DigitAngles, TransitionStrategy } from '../../animation'
 import './DigitDisplay.css'
 
-/** Convert a digit character to DigitAngles */
-function digitToAngles(digit: string): DigitAngles {
-  const pattern = DIGITS[digit]
-  if (!pattern) return Array(6).fill({ hour: 0, minute: 0 })
+type DigitResolver = (digit: string) => { hour: number; minute: number }[]
+
+/** Convert a digit character to DigitAngles using a resolver */
+function digitToAngles(digit: string, resolve: DigitResolver): DigitAngles {
+  const pattern = resolve(digit)
+  if (!pattern || pattern.length === 0) return Array(6).fill({ hour: 0, minute: 0 })
   return pattern.map((c) => ({ hour: c.hour, minute: c.minute }))
 }
 
@@ -33,23 +35,24 @@ interface DigitDisplayProps {
 
 const DigitDisplay = forwardRef<DigitDisplayHandle, DigitDisplayProps>(
   function DigitDisplay({ digit, clockSize = 80, gap = 2 }, ref) {
-    const transition = useDigitTransition(digitToAngles(digit))
+    const { getActiveDigit } = useDigitDesign()
+    const transition = useDigitTransition(digitToAngles(digit, getActiveDigit))
     const currentDigitRef = useRef(digit)
 
     // Expose animation control to parent
     useImperativeHandle(ref, () => ({
       animateTo: (targetDigit: string, strategy: TransitionStrategy, duration: number) => {
-        transition.animateTo(digitToAngles(targetDigit), strategy, duration)
+        transition.animateTo(digitToAngles(targetDigit, getActiveDigit), strategy, duration)
         currentDigitRef.current = targetDigit
       },
       setDigit: (d: string) => {
-        transition.setAngles(digitToAngles(d))
+        transition.setAngles(digitToAngles(d, getActiveDigit))
         currentDigitRef.current = d
       },
       get isAnimating() {
         return transition.isAnimating
       },
-    }), [transition])
+    }), [transition, getActiveDigit])
 
     // When the digit prop changes externally (without animation), we defer
     // the snap by one animation frame. This gives the parent's useEffect a
@@ -61,12 +64,24 @@ const DigitDisplay = forwardRef<DigitDisplayHandle, DigitDisplayProps>(
         currentDigitRef.current = digit
         const rafId = requestAnimationFrame(() => {
           if (!transition.isAnimating) {
-            transition.setAngles(digitToAngles(digit))
+            transition.setAngles(digitToAngles(digit, getActiveDigit))
           }
         })
         return () => cancelAnimationFrame(rafId)
       }
-    }, [digit, transition])
+    }, [digit, transition, getActiveDigit])
+
+    // When the active design changes (e.g. user sets a custom design),
+    // update the displayed angles to reflect the new design.
+    const prevResolverRef = useRef(getActiveDigit)
+    useEffect(() => {
+      if (prevResolverRef.current !== getActiveDigit) {
+        prevResolverRef.current = getActiveDigit
+        if (!transition.isAnimating) {
+          transition.setAngles(digitToAngles(currentDigitRef.current, getActiveDigit))
+        }
+      }
+    }, [getActiveDigit, transition])
 
     return (
       <div

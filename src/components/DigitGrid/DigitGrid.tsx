@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import AnalogClock from '../AnalogClock/AnalogClock'
-import { DIGITS, CLOCK_LABELS } from '../../data/digits'
+import { CLOCK_LABELS } from '../../data/digits'
 import { useSavedDesigns } from '../../contexts/SavedDesignsContext'
+import { useDigitDesign } from '../../contexts/DigitDesignContext'
 import { useDigitTransition } from '../../hooks/useDigitTransition'
 import {
   shortestPathStrategy,
@@ -36,17 +37,19 @@ const ALGORITHMS: Record<AlgorithmKey, { label: string; strategy: TransitionStra
   windUp: { label: 'Wind-Up', strategy: windUpStrategy },
 }
 
+type DigitResolver = (digit: string) => { hour: number; minute: number }[]
+
 /** Convert a digit pattern to DigitAngles format */
-function digitToAngles(digit: string): DigitAngles {
-  const pattern = DIGITS[digit]
-  if (!pattern) return Array(6).fill({ hour: 0, minute: 0 })
+function digitToAngles(digit: string, resolve: DigitResolver): DigitAngles {
+  const pattern = resolve(digit)
+  if (!pattern || pattern.length === 0) return Array(6).fill({ hour: 0, minute: 0 })
   return pattern.map((c) => ({ hour: c.hour, minute: c.minute }))
 }
 
 /** Convert a digit pattern to ClockState[] for the per-clock controls */
-function clocksFromDigit(digit: string): ClockState[] {
-  const pattern = DIGITS[digit]
-  if (!pattern) return Array(6).fill({ mode: 'angle', hourAngle: 0, minuteAngle: 0, hours: 0, minutes: 0 })
+function clocksFromDigit(digit: string, resolve: DigitResolver): ClockState[] {
+  const pattern = resolve(digit)
+  if (!pattern || pattern.length === 0) return Array(6).fill({ mode: 'angle', hourAngle: 0, minuteAngle: 0, hours: 0, minutes: 0 })
   return pattern.map((c) => ({
     mode: 'angle' as PositionMode,
     hourAngle: c.hour,
@@ -57,9 +60,12 @@ function clocksFromDigit(digit: string): ClockState[] {
 }
 
 function DigitGrid() {
+  // --- Active digit designs ---
+  const { getActiveDigit, setActiveDigit, activeDesigns, resetAll } = useDigitDesign()
+
   // --- Per-clock manual controls state (existing feature) ---
   const [selectedDigit, setSelectedDigit] = useState<SelectedDigit>('0')
-  const [clocks, setClocks] = useState<ClockState[]>(() => clocksFromDigit('0'))
+  const [clocks, setClocks] = useState<ClockState[]>(() => clocksFromDigit('0', getActiveDigit))
 
   // --- Transition animation state ---
   const [fromDigit, setFromDigit] = useState<Digit>('1')
@@ -67,7 +73,7 @@ function DigitGrid() {
   const [algorithm, setAlgorithm] = useState<AlgorithmKey>('shortest')
   const [duration, setDuration] = useState(800)
 
-  const transition = useDigitTransition(digitToAngles('0'))
+  const transition = useDigitTransition(digitToAngles('0', getActiveDigit))
 
   // --- Cycle state ---
   const [isCycling, setIsCycling] = useState(false)
@@ -130,8 +136,8 @@ function DigitGrid() {
     if (transition.isAnimating) return
     setSelectedDigit(digit)
     if (digit !== 'custom') {
-      setClocks(clocksFromDigit(digit))
-      transition.setAngles(digitToAngles(digit))
+      setClocks(clocksFromDigit(digit, getActiveDigit))
+      transition.setAngles(digitToAngles(digit, getActiveDigit))
     }
   }
 
@@ -147,13 +153,13 @@ function DigitGrid() {
 
   const handlePlay = useCallback(() => {
     if (transition.isAnimating) return
-    const from = digitToAngles(fromDigit)
-    const to = digitToAngles(toDigit)
+    const from = digitToAngles(fromDigit, getActiveDigit)
+    const to = digitToAngles(toDigit, getActiveDigit)
     const { strategy } = ALGORITHMS[algorithm]
 
     // Set grid to show source digit first
     setSelectedDigit(fromDigit)
-    setClocks(clocksFromDigit(fromDigit))
+    setClocks(clocksFromDigit(fromDigit, getActiveDigit))
     transition.setAngles(from)
 
     // Start animation on next frame so the "from" state renders first
@@ -164,9 +170,9 @@ function DigitGrid() {
     // After animation, update the manual controls to reflect the target
     setTimeout(() => {
       setSelectedDigit(toDigit)
-      setClocks(clocksFromDigit(toDigit))
+      setClocks(clocksFromDigit(toDigit, getActiveDigit))
     }, duration + 50)
-  }, [fromDigit, toDigit, algorithm, duration, transition])
+  }, [fromDigit, toDigit, algorithm, duration, transition, getActiveDigit])
 
   const handleCycle = useCallback(() => {
     if (transition.isAnimating || isCycling) return
@@ -178,8 +184,8 @@ function DigitGrid() {
 
     // Show digit 0 immediately
     setSelectedDigit('0')
-    setClocks(clocksFromDigit('0'))
-    transition.setAngles(digitToAngles('0'))
+    setClocks(clocksFromDigit('0', getActiveDigit))
+    transition.setAngles(digitToAngles('0', getActiveDigit))
 
     let step = 0 // current "from" index: will animate 0→1, 1→2, …, 8→9
 
@@ -193,8 +199,8 @@ function DigitGrid() {
 
       const fromD = String(step) as Digit
       const toD = String(step + 1) as Digit
-      const from = digitToAngles(fromD)
-      const to = digitToAngles(toD)
+      const from = digitToAngles(fromD, getActiveDigit)
+      const to = digitToAngles(toD, getActiveDigit)
 
       // Ensure we're at the "from" state
       transition.setAngles(from)
@@ -206,7 +212,7 @@ function DigitGrid() {
       // After this transition completes, update UI and schedule the next one
       setTimeout(() => {
         setSelectedDigit(toD)
-        setClocks(clocksFromDigit(toD))
+        setClocks(clocksFromDigit(toD, getActiveDigit))
         step++
         // Pause briefly before the next transition
         setTimeout(next, pause)
@@ -215,7 +221,7 @@ function DigitGrid() {
 
     // Start the first transition after a brief initial pause
     setTimeout(next, pause)
-  }, [algorithm, duration, transition, isCycling])
+  }, [algorithm, duration, transition, isCycling, getActiveDigit])
 
   // --- Determine which angles to show ---
   // For digit presets (and during any animation): always use transition.angles
@@ -389,28 +395,55 @@ function DigitGrid() {
           <div className="saved-designs-row">
             <span className="transition-label">Saved</span>
             <div className="saved-designs-list">
-              {designs.map((d) => (
-                <div key={d.id} className="saved-design-item">
-                  <button
-                    className="saved-design-btn"
-                    onClick={() => handleLoadDesign(d)}
-                    disabled={isBusy}
-                    title={`Load "${d.name}" (digit ${d.digit})`}
-                  >
-                    <span className="saved-design-digit">{d.digit}</span>
-                    {d.name}
-                  </button>
-                  <button
-                    className="saved-design-delete"
-                    onClick={() => handleDeleteDesign(d.id)}
-                    disabled={isBusy}
-                    title="Delete"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+              {designs.map((d) => {
+                // Check if this design's clocks match the currently active design for its digit
+                const activeClocks = activeDesigns[d.digit]
+                const isActive = activeClocks !== null && activeClocks !== undefined &&
+                  JSON.stringify(activeClocks) === JSON.stringify(d.clocks)
+                return (
+                  <div key={d.id} className="saved-design-item">
+                    <button
+                      className={`set-active-btn${isActive ? ' is-active' : ''}`}
+                      onClick={() => setActiveDigit(d.digit, d.clocks)}
+                      disabled={isBusy}
+                      title={isActive ? 'Currently active' : `Set as active for digit ${d.digit}`}
+                    >
+                      ★
+                    </button>
+                    <button
+                      className="saved-design-btn"
+                      onClick={() => handleLoadDesign(d)}
+                      disabled={isBusy}
+                      title={`Load "${d.name}" (digit ${d.digit})`}
+                    >
+                      <span className="saved-design-digit">{d.digit}</span>
+                      {d.name}
+                    </button>
+                    <button
+                      className="saved-design-delete"
+                      onClick={() => handleDeleteDesign(d.id)}
+                      disabled={isBusy}
+                      title="Delete"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })}
             </div>
+          </div>
+        )}
+
+        {Object.values(activeDesigns).some((v) => v !== null) && (
+          <div className="reset-designs-row">
+            <span className="transition-label">Reset</span>
+            <button
+              className="save-btn"
+              onClick={resetAll}
+              disabled={isBusy}
+            >
+              Reset All to Defaults
+            </button>
           </div>
         )}
       </div>

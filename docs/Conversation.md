@@ -886,3 +886,76 @@ Updated `src/components/DigitGrid/DigitGrid.css` — added styles for:
 - `.saved-design-item`, `.saved-design-btn`, `.saved-design-digit`, `.saved-design-delete` — individual saved design buttons
 
 Build verification: `npm run build` passed cleanly.
+
+### User
+> how do I set the custom digit to be used everywhere?
+
+### Assistant
+That feature isn't implemented yet — it's covered by **Issue #30** ("Set a custom digit design as the active design used across the app"), which depends on the save/load feature we just finished (#29).
+
+Right now, saved designs can only be loaded back into the Grid view's editor. To make a custom design replace a digit everywhere (Clock view, Gallery, etc.), we'd need to build a `DigitDesignContext` that all components read from instead of the hardcoded `DIGITS` data.
+
+Would you like me to start working on Issue #30?
+
+### User
+> got it!
+
+### Assistant
+Great! Would you like me to start working on Issue #30 (set a custom digit design as the active design used across the app)? That's the next one in the dependency chain and would enable the "use everywhere" functionality you're looking for.
+
+### User
+> yep
+
+### Assistant
+
+Committed Issue #29 work, then entered plan mode for Issue #30.
+
+#### Codebase Exploration
+
+Traced all consumers of `DIGITS` across the codebase:
+- `DigitDisplay.tsx` — `digitToAngles()` → `DIGITS[digit]` lookup (used by ClockScreen via ref handle)
+- `DigitGrid.tsx` — `digitToAngles()` and `clocksFromDigit()` → `DIGITS[digit]` lookups
+- `App.tsx` — Gallery view: direct `DIGITS[digit].map(...)` access
+- `ClockScreen.tsx` — no direct DIGITS import (consumes via DigitDisplay)
+
+#### Implementation Plan
+
+Created `DigitDesignContext` following the `ClockStyleContext` pattern:
+- `ActiveDigitDesigns` type: maps each digit to custom clocks or null (use default)
+- `getActiveDigit(digit)` — returns custom design if set, otherwise `DIGITS[digit]`
+- `setActiveDigit(digit, clocks)` — sets custom for a digit
+- `resetDigit(digit)` / `resetAll()` — revert to defaults
+- localStorage persistence at key `'clockart-active-digits'`
+
+Key design: `digitToAngles()` in both DigitDisplay and DigitGrid changed to accept a resolver parameter instead of directly importing DIGITS. Consumers pass `getActiveDigit` from context as the resolver.
+
+#### Implementation
+
+Created `src/contexts/DigitDesignContext.tsx` with:
+- `ActiveDigitDesigns` state: all null by default (= use hardcoded DIGITS)
+- `loadActiveDesigns()` / `persistActiveDesigns()` for localStorage
+- Only stores non-null entries in localStorage to minimize storage
+- Provider exports `{ activeDesigns, getActiveDigit, setActiveDigit, resetDigit, resetAll }`
+
+Updated `src/App.tsx`:
+- Extracted `AppContent` component (needed because `useDigitDesign()` must be inside the provider)
+- Provider nesting: `ClockStyleProvider` → `SavedDesignsProvider` → `DigitDesignProvider` → `AppContent`
+- Gallery view: replaced `DIGITS[digit]` with `getActiveDigit(digit)`
+
+Updated `src/components/DigitDisplay/DigitDisplay.tsx`:
+- `digitToAngles` now accepts a `DigitResolver` parameter
+- Component calls `useDigitDesign()` and passes `getActiveDigit` as resolver
+- Added `getActiveDigit` to `useImperativeHandle` dependency array
+- Added effect to update angles when active design changes (e.g. user sets new custom design)
+
+Updated `src/components/DigitGrid/DigitGrid.tsx`:
+- Replaced all `DIGITS[digit]` lookups with `getActiveDigit(digit)` resolver
+- Added ★ "Set Active" button to each saved design item
+- Active design highlighted with gold star (JSON comparison of clocks arrays)
+- Added "Reset All to Defaults" button (shown when any digit has custom active design)
+
+Updated `src/components/DigitGrid/DigitGrid.css`:
+- `.set-active-btn` — star button with gold highlight when active
+- `.reset-designs-row` — row for reset buttons
+
+Build verification: `npm run build` passed cleanly.
