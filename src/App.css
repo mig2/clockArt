@@ -21,27 +21,6 @@
   gap: 2px;
 }
 
-.all-digits {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 20px;
-}
-
-.digit-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.digit-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #666;
-}
-
 .single-digit {
   display: flex;
   align-items: center;

@@ -1,0 +1,156 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+/* ---- Current Set overview ---- */
+.gallery-current-set {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.gallery-current-set-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gallery-current-set-digits {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.gallery-current-set-digit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.gallery-current-set-digit-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #999;
+}
+
+.gallery-current-set-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+}
+
+/* Divider between current set and per-digit alternates */
+.gallery-divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 0;
+}
+
+/* ---- Per-digit alternates ---- */
+
+/* One row per digit: label + variant cards */
+.gallery-digit-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.gallery-digit-label {
+  font-size: 20px;
+  font-weight: 700;
+  color: #555;
+  min-width: 28px;
+  text-align: center;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+/* Container for variant cards */
+.gallery-variants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Clickable variant card */
+.gallery-variant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+
+.gallery-variant:hover {
+  border-color: #ccc;
+}
+
+/* Active variant highlight */
+.gallery-variant--active {
+  border-color: #2eaadc;
+  background: rgba(46, 170, 220, 0.05);
+  box-shadow: 0 0 0 1px rgba(46, 170, 220, 0.2);
+}
+
+.gallery-variant--active:hover {
+  border-color: #2eaadc;
+}
+
+/* 2x3 grid of mini clocks inside each variant */
+.gallery-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+}
+
+/* Name label below the grid */
+.gallery-variant-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #888;
+  text-align: center;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-variant--active .gallery-variant-name {
+  color: #2eaadc;
+  font-weight: 600;
+}
+
+/* Responsive: stack on narrow screens */
+@media (max-width: 600px) {
+  .gallery-digit-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gallery-digit-label {
+    padding-top: 0;
+  }
+
+  .gallery-variants {
+    justify-content: center;
+  }
+}

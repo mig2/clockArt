@@ -959,3 +959,73 @@ Updated `src/components/DigitGrid/DigitGrid.css`:
 - `.reset-designs-row` — row for reset buttons
 
 Build verification: `npm run build` passed cleanly.
+
+---
+
+## Issue #31 — Gallery View: Show Alternate Digit Designs with Active Indicator
+
+**User**: now work on 31
+
+**Assistant**: Entered plan mode. Explored the codebase: current Gallery view in App.tsx (inline, shows only one design per digit), SavedDesignsContext (getDesignsForDigit), DigitDesignContext (activeDesigns, setActiveDigit, resetDigit), App.css gallery styles, NavBar, AnalogClock, DIGITS data, savedDesigns data.
+
+Designed plan: Extract Gallery into its own component (`src/components/Gallery/Gallery.tsx` + `Gallery.css`). For each digit 0-9, show all available designs (default + saved customs) as clickable variant cards. Active design gets a teal border (#2eaadc). Clicking a variant sets it as active. Clean up App.tsx to use the new component and remove orphaned CSS.
+
+**User**: (approved plan)
+
+**Assistant**: Implemented Issue #31:
+
+Created `src/components/Gallery/Gallery.css`:
+- `.gallery` — vertical column of digit groups, max-width 1200px
+- `.gallery-digit-group` — flex row: digit label + variant cards
+- `.gallery-digit-label` — large bold digit number
+- `.gallery-variants` — flex-wrap row of variant cards
+- `.gallery-variant` — clickable card with transparent border, hover shows #ccc
+- `.gallery-variant--active` — teal border (#2eaadc) + subtle background + box-shadow
+- `.gallery-variant-grid` — 2×3 grid of mini clocks (52px each)
+- `.gallery-variant-name` — label below grid ("Default", custom name), teal when active
+- Responsive breakpoint at 600px: stacks digit label above variants
+
+Created `src/components/Gallery/Gallery.tsx`:
+- Imports DIGITS (default), useDigitDesign (active state), useSavedDesigns (custom designs)
+- For each digit: builds variants array = [Default, ...saved customs]
+- `isVariantActive()`: checks `activeDesigns[digit] === null` for default, JSON.stringify comparison for customs
+- `handleVariantClick()`: calls `resetDigit(digit)` for default, `setActiveDigit(digit, clocks)` for custom
+- Renders variant cards with AnalogClock grids at 52px size + name labels
+
+Updated `src/App.tsx`:
+- Removed `useDigitDesign` import and `ALL_DIGITS` constant
+- Removed `getActiveDigit` hook call from AppContent
+- Replaced inline gallery block (20 lines) with `<Gallery />`
+- Added `import Gallery from './components/Gallery/Gallery'`
+
+Updated `src/App.css`:
+- Removed orphaned `.all-digits`, `.digit-column`, `.digit-label` styles (now in Gallery.css)
+- Kept`.digit-grid` (still used by DigitGrid component)
+
+Build verification: `npm run build` passed cleanly.
+
+---
+
+## Issue #32 — Gallery View: Show Current Full Digit Set Overview
+
+**User**: I love the gallery, but I am missing the full set of digits displayed in one place. perhaps at the top of the gallery (i.e. before 0) we have a "current production digits" list
+
+**Assistant**: Implemented Issue #32 — added a "Current Set" overview section at the top of the Gallery, before the per-digit alternates.
+
+Updated `src/components/Gallery/Gallery.tsx`:
+- Added `getActiveDigit` to the `useDigitDesign()` destructure
+- Added `CURRENT_SET_CLOCK_SIZE = 48` constant for the overview clocks
+- Added "Current Set" section at the top: renders all 10 digits in a row using `getActiveDigit(digit)`
+- Each digit shows a small label ("0"-"9") + a 2×3 grid of 48px clocks
+- Added `<hr className="gallery-divider" />` between the overview and per-digit alternates
+
+Updated `src/components/Gallery/Gallery.css`:
+- `.gallery-current-set` — bordered card with light background (#fafafa)
+- `.gallery-current-set-label` — uppercase heading "CURRENT SET"
+- `.gallery-current-set-digits` — flex row of digit previews, centered, wrapping
+- `.gallery-current-set-digit` — column: label + grid
+- `.gallery-current-set-digit-label` — small gray digit number
+- `.gallery-current-set-grid` — 2×3 grid (same layout as variant grids)
+- `.gallery-divider` — subtle horizontal rule separator
+
+Build verification: `npm run build` passed cleanly.

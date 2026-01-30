@@ -8,9 +8,8 @@ import NavBar from './components/NavBar/NavBar'
 import type { ViewKey } from './components/NavBar/NavBar'
 import { ClockStyleProvider } from './contexts/ClockStyleContext'
 import { SavedDesignsProvider } from './contexts/SavedDesignsContext'
-import { DigitDesignProvider, useDigitDesign } from './contexts/DigitDesignContext'
-
-const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+import { DigitDesignProvider } from './contexts/DigitDesignContext'
+import Gallery from './components/Gallery/Gallery'
 
 /** Read initial view from query params for direct-link support */
 function getInitialView(): ViewKey {
@@ -28,7 +27,6 @@ function getInitialView(): ViewKey {
 
 function AppContent() {
   const [activeView, setActiveView] = useState<ViewKey>(getInitialView)
-  const { getActiveDigit } = useDigitDesign()
 
   return (
     <div className="app">
@@ -47,26 +45,7 @@ function AppContent() {
             />
           </div>
         )}
-        {activeView === 'gallery' && (
-          <div className="all-digits">
-            {ALL_DIGITS.map((digit) => (
-              <div key={digit} className="digit-column">
-                <div className="digit-label">{digit}</div>
-                <div className="digit-grid">
-                  {getActiveDigit(digit).map((clock, i) => (
-                    <AnalogClock
-                      key={i}
-                      size={80}
-                      hourAngleDeg={clock.hour}
-                      minuteAngleDeg={clock.minute}
-                      showSecondHand={false}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {activeView === 'gallery' && <Gallery />}
       </div>
     </div>
   )
