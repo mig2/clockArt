@@ -7,6 +7,7 @@ import ClockScreen from './components/ClockScreen/ClockScreen'
 import NavBar from './components/NavBar/NavBar'
 import type { ViewKey } from './components/NavBar/NavBar'
 import { ClockStyleProvider } from './contexts/ClockStyleContext'
+import { SavedDesignsProvider } from './contexts/SavedDesignsContext'
 import { DIGITS } from './data/digits'
 
 const ALL_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <ClockStyleProvider>
+      <SavedDesignsProvider>
       <div className="app">
         <NavBar activeView={activeView} onViewChange={setActiveView} />
         <div className="app-content">
@@ -68,6 +70,7 @@ function App() {
           )}
         </div>
       </div>
+      </SavedDesignsProvider>
     </ClockStyleProvider>
   )
 }

@@ -261,6 +261,161 @@
   cursor: not-allowed;
 }
 
+/* Saved designs panel */
+.saved-designs-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.save-design-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.save-digit-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #555;
+  white-space: nowrap;
+}
+
+.save-digit-select {
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  background: #fff;
+}
+
+.save-name-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+  min-width: 120px;
+}
+
+.save-name-input::placeholder {
+  color: #aaa;
+}
+
+.save-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  white-space: nowrap;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #555;
+}
+
+.save-btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.saved-designs-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.saved-designs-row .transition-label {
+  padding-top: 4px;
+}
+
+.saved-designs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.saved-design-item {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.saved-design-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 12px;
+  cursor: pointer;
+  color: #333;
+  transition: background-color 0.15s;
+}
+
+.saved-design-btn:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.saved-design-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.saved-design-digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #333;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.saved-design-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  border: none;
+  border-left: 1px solid #ccc;
+  background: #f5f5f5;
+  color: #999;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.saved-design-delete:hover:not(:disabled) {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.saved-design-delete:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* Responsive: stack on narrow screens */
 @media (max-width: 700px) {
   .digit-grid-layout {

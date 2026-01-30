@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import AnalogClock from '../AnalogClock/AnalogClock'
 import { DIGITS, CLOCK_LABELS } from '../../data/digits'
+import { useSavedDesigns } from '../../contexts/SavedDesignsContext'
 import { useDigitTransition } from '../../hooks/useDigitTransition'
 import {
   shortestPathStrategy,
@@ -71,6 +72,57 @@ function DigitGrid() {
   // --- Cycle state ---
   const [isCycling, setIsCycling] = useState(false)
   const cycleRef = useRef(false)
+
+  // --- Saved designs ---
+  const { designs, saveDesign, deleteDesign } = useSavedDesigns()
+  const [saveName, setSaveName] = useState('')
+  const [saveDigit, setSaveDigit] = useState<Digit>('0')
+
+  // Sync saveDigit when selectedDigit changes to a digit preset
+  useEffect(() => {
+    if (selectedDigit !== 'custom') {
+      setSaveDigit(selectedDigit)
+    }
+  }, [selectedDigit])
+
+  function handleSave() {
+    if (!saveName.trim()) return
+    // Extract angles from current clocks state
+    const clockAngles = clocks.map((clock) => {
+      if (clock.mode === 'angle') {
+        return { hour: clock.hourAngle, minute: clock.minuteAngle }
+      }
+      // Convert time mode to angles
+      return {
+        hour: (clock.hours % 12) * 30,
+        minute: clock.minutes * 6,
+      }
+    })
+    saveDesign({
+      name: saveName.trim(),
+      digit: saveDigit,
+      clocks: clockAngles,
+    })
+    setSaveName('')
+  }
+
+  function handleLoadDesign(design: { clocks: { hour: number; minute: number }[] }) {
+    if (transition.isAnimating || isCycling) return
+    setSelectedDigit('custom')
+    const newClocks: ClockState[] = design.clocks.map((c) => ({
+      mode: 'angle' as PositionMode,
+      hourAngle: c.hour,
+      minuteAngle: c.minute,
+      hours: 0,
+      minutes: 0,
+    }))
+    setClocks(newClocks)
+    transition.setAngles(design.clocks.map((c) => ({ hour: c.hour, minute: c.minute })))
+  }
+
+  function handleDeleteDesign(id: string) {
+    deleteDesign(id)
+  }
 
   // --- Handlers ---
 
@@ -293,6 +345,74 @@ function DigitGrid() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Save / Load designs */}
+      <div className="saved-designs-panel">
+        <div className="save-design-row">
+          <span className="transition-label">Save</span>
+          <label className="save-digit-label">
+            For digit
+            <select
+              className="save-digit-select"
+              value={saveDigit}
+              onChange={(e) => setSaveDigit(e.target.value as Digit)}
+              disabled={isBusy}
+            >
+              {DIGIT_LIST.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </label>
+          <input
+            className="save-name-input"
+            type="text"
+            placeholder="Design name"
+            value={saveName}
+            onChange={(e) => setSaveName(e.target.value)}
+            maxLength={40}
+            disabled={isBusy}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave()
+            }}
+          />
+          <button
+            className="save-btn"
+            onClick={handleSave}
+            disabled={isBusy || !saveName.trim()}
+          >
+            Save
+          </button>
+        </div>
+
+        {designs.length > 0 && (
+          <div className="saved-designs-row">
+            <span className="transition-label">Saved</span>
+            <div className="saved-designs-list">
+              {designs.map((d) => (
+                <div key={d.id} className="saved-design-item">
+                  <button
+                    className="saved-design-btn"
+                    onClick={() => handleLoadDesign(d)}
+                    disabled={isBusy}
+                    title={`Load "${d.name}" (digit ${d.digit})`}
+                  >
+                    <span className="saved-design-digit">{d.digit}</span>
+                    {d.name}
+                  </button>
+                  <button
+                    className="saved-design-delete"
+                    onClick={() => handleDeleteDesign(d.id)}
+                    disabled={isBusy}
+                    title="Delete"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="digit-grid-layout">

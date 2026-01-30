@@ -721,3 +721,168 @@ Created four issues to cover the full set of features:
 - [#31 — Gallery view: show alternate digit designs with active indicator](https://github.com/mig2/clockArt/issues/31): Redesign the Gallery to show all available designs per digit (default + custom). The currently active design gets a colored border to distinguish it. Each variant shows its name. Users can set a design as active from the gallery. Depends on #29 and #30.
 
 - [#32 — Gallery view: show current full digit set overview](https://github.com/mig2/clockArt/issues/32): Add a "Current Set" section to the Gallery showing all 10 active digits as they appear in the Clock view. This is essentially the current Gallery behavior but labeled and positioned as an overview, coexisting with the per-digit alternates section from #31. Depends on #30 and #31.
+
+### User
+> work on 29
+
+### Assistant
+
+Entered plan mode to design the implementation for Issue #29.
+
+#### Codebase Exploration
+
+Explored the existing codebase to understand patterns:
+- `ClockStyleContext` — established pattern for React context + localStorage persistence
+- `DigitGrid.tsx` — the Grid view component with per-clock controls, digit selector, transition animation
+- `digits.ts` — static `DIGITS` record mapping digit strings to clock angle arrays
+- `App.tsx` — root component wrapping with `ClockStyleProvider`
+
+#### Implementation Plan
+
+Designed a detailed plan covering:
+
+**New Files:**
+1. `src/data/savedDesigns.ts` — `SavedDesign` interface + localStorage persistence (`loadSavedDesigns`, `persistSavedDesigns`)
+2. `src/contexts/SavedDesignsContext.tsx` — Provider + `useSavedDesigns()` hook with `designs`, `saveDesign`, `deleteDesign`, `getDesignsForDigit`
+
+**Modified Files:**
+3. `src/App.tsx` — wrap with `<SavedDesignsProvider>`
+4. `src/components/DigitGrid/DigitGrid.tsx` — save/load/delete UI and handlers
+5. `src/components/DigitGrid/DigitGrid.css` — saved designs panel styles
+
+**Edge Cases:**
+- Empty name → Save button disabled
+- Duplicate names → allowed (each has unique id)
+- Name length → maxLength=40 on input
+- Save during animation → all controls disabled when `isBusy`
+- Time-mode clocks → converted to angles on save
+- Loading a design → sets `selectedDigit='custom'`
+- Corrupt localStorage → falls back to empty array
+- No saved designs → "Saved:" section hidden
+
+#### Implementation
+
+Created `src/data/savedDesigns.ts`:
+```typescript
+const STORAGE_KEY = 'clockart-saved-designs'
+
+export interface SavedDesign {
+  id: string
+  name: string
+  digit: string
+  clocks: { hour: number; minute: number }[]
+  createdAt: number
+}
+
+export function loadSavedDesigns(): SavedDesign[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed)) return parsed
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return []
+}
+
+export function persistSavedDesigns(designs: SavedDesign[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(designs))
+  } catch {
+    // Ignore storage errors (quota exceeded, etc.)
+  }
+}
+```
+
+Created `src/contexts/SavedDesignsContext.tsx`:
+```typescript
+import { createContext, useContext, useState, useCallback } from 'react'
+import type { ReactNode } from 'react'
+import type { SavedDesign } from '../data/savedDesigns'
+import { loadSavedDesigns, persistSavedDesigns } from '../data/savedDesigns'
+
+interface SavedDesignsContextValue {
+  designs: SavedDesign[]
+  saveDesign: (input: Omit<SavedDesign, 'id' | 'createdAt'>) => void
+  deleteDesign: (id: string) => void
+  getDesignsForDigit: (digit: string) => SavedDesign[]
+}
+
+const SavedDesignsContext = createContext<SavedDesignsContextValue>({
+  designs: [],
+  saveDesign: () => {},
+  deleteDesign: () => {},
+  getDesignsForDigit: () => [],
+})
+
+export function SavedDesignsProvider({ children }: { children: ReactNode }) {
+  const [designs, setDesigns] = useState<SavedDesign[]>(loadSavedDesigns)
+
+  const saveDesign = useCallback(
+    (input: Omit<SavedDesign, 'id' | 'createdAt'>) => {
+      setDesigns((prev) => {
+        const newDesign: SavedDesign = {
+          ...input,
+          id: crypto.randomUUID?.() ?? String(Date.now()),
+          createdAt: Date.now(),
+        }
+        const updated = [...prev, newDesign]
+        persistSavedDesigns(updated)
+        return updated
+      })
+    },
+    [],
+  )
+
+  const deleteDesign = useCallback((id: string) => {
+    setDesigns((prev) => {
+      const updated = prev.filter((d) => d.id !== id)
+      persistSavedDesigns(updated)
+      return updated
+    })
+  }, [])
+
+  const getDesignsForDigit = useCallback(
+    (digit: string) => {
+      return designs.filter((d) => d.digit === digit)
+    },
+    [designs],
+  )
+
+  return (
+    <SavedDesignsContext.Provider
+      value={{ designs, saveDesign, deleteDesign, getDesignsForDigit }}
+    >
+      {children}
+    </SavedDesignsContext.Provider>
+  )
+}
+
+export function useSavedDesigns(): SavedDesignsContextValue {
+  return useContext(SavedDesignsContext)
+}
+```
+
+Updated `src/App.tsx` — added `<SavedDesignsProvider>` inside `<ClockStyleProvider>`.
+
+Updated `src/components/DigitGrid/DigitGrid.tsx` — added:
+- Import `useEffect` and `useSavedDesigns`
+- New state: `saveName`, `saveDigit`
+- `useEffect` to sync `saveDigit` when `selectedDigit` changes
+- `handleSave()` — extracts clock angles (converting time-mode to angles), calls `saveDesign`, clears name
+- `handleLoadDesign(design)` — sets custom mode, populates clocks and transition angles from saved data
+- `handleDeleteDesign(id)` — calls `deleteDesign`
+- New JSX section between digit selector and grid layout:
+  - Save row: "For digit" select + name input + Save button
+  - Saved designs row (conditional): button group with digit badge, name, and × delete button
+
+Updated `src/components/DigitGrid/DigitGrid.css` — added styles for:
+- `.saved-designs-panel` — bordered panel matching `.transition-controls`
+- `.save-design-row` — flex row for save controls
+- `.save-digit-select`, `.save-name-input`, `.save-btn` — form controls
+- `.saved-designs-row`, `.saved-designs-list` — flex-wrap layout
+- `.saved-design-item`, `.saved-design-btn`, `.saved-design-digit`, `.saved-design-delete` — individual saved design buttons
+
+Build verification: `npm run build` passed cleanly.
